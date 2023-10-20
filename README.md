@@ -9,7 +9,7 @@ Group members (3-5) (no Student IDs, only names and github usernames):
 
 3. Name: Ashwin Gnanaseelan, Github: AshwinG2003
 
-4. Name: Anthony Gutierrez, Github: Anthony-Gutierrez
+4. Name: Georges Anthony Gutierrez Ricard, Github: Anthony-Gutierrez
 
 
 ## Overview
