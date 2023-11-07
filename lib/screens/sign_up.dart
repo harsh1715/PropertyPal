@@ -32,13 +32,14 @@ class _SignUpState extends State<SignUp> {
         "name": _nameController,
         "email": _emailController.text,
         "password": _passwordController.text,
+        // 'propertyName': " ",
+        // 'propertyAddress': " ",
+        // 'tenantName': " ",
+        'rent': 0
       };
 
       await authService.createUser(data, context);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Dashboard()),
-      );
+
       setState(() {
         isLoader = false;
       });
@@ -123,7 +124,7 @@ class _SignUpState extends State<SignUp> {
                   },
                   child: isLoader
                       ? Center(child: CircularProgressIndicator())
-                      : Text("Submit"),
+                      : Text("Create"),
                 ),
               ),
               TextButton(
