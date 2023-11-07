@@ -29,12 +29,12 @@ class _SignUpState extends State<SignUp> {
       });
 
       var data = {
-        "name": _nameController,
+        "name": _nameController.text,
         "email": _emailController.text,
         "password": _passwordController.text,
-        // 'propertyName': " ",
-        // 'propertyAddress': " ",
-        // 'tenantName': " ",
+        'propertyName': " ",
+        'propertyAddress': " ",
+        'tenantName': " ",
         'rent': 0
       };
 
