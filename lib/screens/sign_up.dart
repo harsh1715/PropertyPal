@@ -91,10 +91,10 @@ class _SignUpState extends State<SignUp> {
                 keyboardType: TextInputType.emailAddress,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0)
-                  )
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0)
+                    )
                 ),
                 validator: appValidator.validateEmail,
               ),
@@ -105,10 +105,10 @@ class _SignUpState extends State<SignUp> {
                 controller: _passwordController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0)
-                  )
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0)
+                    )
                 ),
                 validator: appValidator.validatePassword,
               ),
@@ -118,22 +118,22 @@ class _SignUpState extends State<SignUp> {
               Container(
                 height: 30,
                 child: ElevatedButton(
-                    onPressed: (){
-                      isLoader ? print("Loading") : _submitForm();
-                    },
-                    child: isLoader
+                  onPressed: (){
+                    isLoader ? print("Loading") : _submitForm();
+                  },
+                  child: isLoader
                       ? Center(child: CircularProgressIndicator())
                       : Text("Submit"),
                 ),
               ),
               TextButton(
-                onPressed: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Login()),
-                  );
-                },
-                child: Text("Login")
+                  onPressed: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Login()),
+                    );
+                  },
+                  child: Text("Login")
               ),
             ],
           ),

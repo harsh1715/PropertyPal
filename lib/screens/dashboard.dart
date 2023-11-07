@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:propertypal/screens/home_screen.dart';
+import 'package:propertypal/screens/reminder_screen.dart';
 import 'package:propertypal/widgets/navbar.dart';
 
 import 'login_screens.dart';
@@ -14,21 +16,9 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   var isLogoutLoading = false;
   int currentIndex = 0;
-  //var pageViewList = [];
+  var pageViewList = [HomeScreen(), ReminderScreen()];
 
-  logOut() async {
-    setState(() {
-      isLogoutLoading = true;
-    });
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (context) => Login()),
-    );
 
-    setState(() {
-      isLogoutLoading = false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,20 +31,8 @@ class _DashboardState extends State<Dashboard> {
           });
         },
       ),
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: (){
-              logOut();
-            },
-            icon: isLogoutLoading
-                ? CircularProgressIndicator()
-                : Icon(Icons.exit_to_app),
-          )
-        ],
-      ),
-      body: Text("hello"),
-      //body: pageViewList[currentIndex],
+
+      body: pageViewList[currentIndex],
     );
   }
 }

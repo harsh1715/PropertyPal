@@ -1,17 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'login_screens.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class ReminderScreen extends StatefulWidget {
+  const ReminderScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<ReminderScreen> createState() => _ReminderScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _ReminderScreenState extends State<ReminderScreen> {
   var isLogoutLoading = false;
   logOut() async {
     setState(() {
@@ -32,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: Colors.blue.shade900,
-        title: Text("All Properties",style: TextStyle(color: Colors.white),),
+        title: Text("Reminders",style: TextStyle(color: Colors.white),),
         centerTitle: true,
         actions: [
           IconButton(
@@ -45,8 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: Text("All Properties Screen"),
-
+      body: Text("This is Reminder Screen"),
     );
   }
 }

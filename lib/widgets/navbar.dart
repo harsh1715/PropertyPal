@@ -11,6 +11,7 @@ class NavBar extends StatelessWidget {
       onDestinationSelected: onDestinationSelected,
       indicatorColor: Colors.blue,
       selectedIndex: selectedIndex,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       destinations: const <Widget>[
         NavigationDestination(
           selectedIcon: Icon(Icons.home),

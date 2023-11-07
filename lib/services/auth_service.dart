@@ -14,13 +14,13 @@ class AuthService{
       );
     } catch (e) {
       showDialog(
-        context: context,
-        builder: (context){
-          return AlertDialog(
-            title: Text("Sign up Failed"),
-            content: Text(e.toString()),
-          );
-        }
+          context: context,
+          builder: (context){
+            return AlertDialog(
+              title: Text("Sign up Failed"),
+              content: Text(e.toString()),
+            );
+          }
       );
     }
   }
