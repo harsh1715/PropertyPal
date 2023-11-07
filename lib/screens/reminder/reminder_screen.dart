@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'login_screens.dart';
+import 'package:propertypal/screens/reminder/reminder_details.dart';
+import '../login_screens.dart';
 
 class ReminderScreen extends StatefulWidget {
   const ReminderScreen({Key? key});
@@ -15,16 +16,16 @@ class _ReminderScreenState extends State<ReminderScreen> {
 
 
   // Function to handle navigation to the next page
-  void navigateToAnotherPage() {
+  void navigateToRemindersDetails() {
     // Replace with your navigation logic
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => AnotherPage()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => RemindersDetails()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Reminders", style: TextStyle(color: Colors.black)),
+        title: Text("Reminders", style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
       body: DefaultTabController(
@@ -32,7 +33,10 @@ class _ReminderScreenState extends State<ReminderScreen> {
         child: Column(
           children: [
             const TabBar(
-              labelColor: Colors.black, // Tab label color
+              labelColor: Colors.black,
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(width: 2.0, color: Colors.black), // Set the indicator color
+              ),// Tab label color
               tabs: [
                 Tab(
                   child: Text(
@@ -104,7 +108,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
                             ),
                           ],
                         ),
-                        onTap: navigateToAnotherPage,
+                        onTap: navigateToRemindersDetails,
                       )
                     ],
                   ),
@@ -121,17 +125,3 @@ class _ReminderScreenState extends State<ReminderScreen> {
   }
 }
 
-// Define the AnotherPage widget for navigation
-class AnotherPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("James Richard"),
-      ),
-      body: Center(
-        child: Text("STuff"),
-      ),
-    );
-  }
-}

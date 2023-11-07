@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/home_screen.dart';
-import 'package:propertypal/screens/reminder_screen.dart';
+import 'package:propertypal/screens/reminder/reminder_screen.dart';
+import 'package:propertypal/screens/reports_screen.dart';
 import 'package:propertypal/screens/settings/settings_screen.dart';
 import 'package:propertypal/widgets/navbar.dart';
 
@@ -17,7 +18,7 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   var isLogoutLoading = false;
   int currentIndex = 0;
-  var pageViewList = [HomeScreen(), ReminderScreen(), SettingsScreen()];
+  var pageViewList = [HomeScreen(), ReminderScreen(), ReportScreen(), SettingsScreen()];
 
 
 
