@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  final userID = FirebaseAuth.instance.currentUser!.uid;
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,12 +60,56 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: HouseWidget()
+      body: HouseWidget(userId: userID)
     );
   }
 }
 
 class HouseWidget extends StatelessWidget {
+  HouseWidget({
+    super.key,
+    required this.userId
+  });
+
+  final String? userId;
+
+  Widget build(BuildContext context) {
+    final Stream<DocumentSnapshot> _usersStream = FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
+    return StreamBuilder<DocumentSnapshot>(
+      stream: _usersStream,
+      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong');
+        }
+        if (!snapshot.hasData || !snapshot.data!.exists){
+          return const Text("Document does not exist");
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting){
+          return Text("Loading");
+        }
+        var data = snapshot.data!.data() as Map<String, dynamic>;
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading");
+        }
+
+        return Houses(
+          data: data, heading: 'Home',
+        );
+      },
+    );
+  }
+}
+
+class Houses extends StatelessWidget {
+  const Houses({
+    super.key, required this.data, required this.heading,
+  });
+
+  final Map data;
+  final String heading;
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -94,7 +142,7 @@ class HouseWidget extends StatelessWidget {
                           children: [
                             Icon(Icons.home_filled, color: Colors.black54),
                             SizedBox(width: 8),
-                            Text("544 Winchester",
+                            Text("${data['propertyName']}",
                                 style: TextStyle(fontSize: 18)),
                           ],
                         ),
@@ -111,7 +159,7 @@ class HouseWidget extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text("544 Winchester, Oshawa, ON",
+                        Text("${data['propertyAddress']}",
                             style: TextStyle(fontSize: 12)),
                       ],
                     ),
@@ -129,7 +177,7 @@ class HouseWidget extends StatelessWidget {
                           child: Container(
                             alignment: Alignment.bottomLeft,
                             child: Text(
-                              "Home",
+                              heading,
                               style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.black54,
@@ -149,7 +197,7 @@ class HouseWidget extends StatelessWidget {
                         color: Colors.white,
                         alignment: Alignment.topRight,
                         padding: EdgeInsets.only(right: 8, top: 8, bottom: 8),
-                        child: const Row(
+                        child: Row(
                           children: [
                             Expanded(
                               child: Column(
@@ -160,7 +208,7 @@ class HouseWidget extends StatelessWidget {
                                     child: Row(
                                       children: [
                                         Text(
-                                          "James",
+                                          "${data['propertyName']}",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -185,7 +233,7 @@ class HouseWidget extends StatelessWidget {
                                     padding: EdgeInsets.only(left: 8.0),
                                     child: Row(
                                       children: [
-                                        Text('-\$1600.00 CAD',
+                                        Text("${data['rent']}",
                                             style: TextStyle(
                                                 color: Colors.red,
                                                 fontSize: 15)),

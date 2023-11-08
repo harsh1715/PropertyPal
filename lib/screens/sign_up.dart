@@ -32,10 +32,12 @@ class _SignUpState extends State<SignUp> {
         "name": _nameController.text,
         "email": _emailController.text,
         "password": _passwordController.text,
-        'propertyName': " ",
-        'propertyAddress': " ",
-        'tenantName': " ",
-        'rent': 0
+        // 'propertyName': " ",
+        // 'propertyAddress': " ",
+        // 'tenantName': " ",
+        // 'tenantPhone': " ",
+        // 'tenantEmail': " ",
+        // 'rent': 0
       };
 
       await authService.createUser(data, context);

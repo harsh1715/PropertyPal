@@ -8,10 +8,10 @@ class Db{
 
   Future<void> addUser(data, context) async {
     final userID = FirebaseAuth.instance.currentUser!.uid;
-    await users
-      .doc(userID)
+    DocumentReference userDocRef = users.doc(userID);
+    await userDocRef
       .set(data)
-      .then((value) => print("User Added poeroperpeorepoarkeopajefoajfowefawefnwefnoefnweofnawoefnnafnefaonfoenfoanf ashwin"))
+      .then((value) => print("User Added"))
       .catchError((error){
         showDialog(
             context: context,
@@ -22,6 +22,26 @@ class Db{
               );
             }
         );
+      });
+  }
+
+  Future<void> addProperty(data) async{
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDocRef = users.doc(userID);
+    CollectionReference additionalCollection = userDocRef.collection('properties');
+
+    QuerySnapshot querySnapshot = await additionalCollection.get();
+    int propertyCount = querySnapshot.docs.length;
+
+
+    String newPropertyName = 'property${propertyCount + 1}';
+
+    await additionalCollection
+        .doc(newPropertyName)
+        .set(data)
+        .then((value) => print("Data Added to Additional Collection"))
+        .catchError((error) {
+              print("Failed");
       });
   }
 

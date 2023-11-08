@@ -1,6 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:propertypal/utils/appvalidator.dart';
+
+import '../services/db.dart';
 
 class AddPropertyForm extends StatefulWidget {
   const AddPropertyForm({super.key});
@@ -10,9 +14,17 @@ class AddPropertyForm extends StatefulWidget {
 }
 
 class _AddPropertyFormState extends State<AddPropertyForm> {
+  final _propertyName = TextEditingController();
+  final _propertyAddress = TextEditingController();
+  final _tenantName = TextEditingController();
+  final _tenantPhone = TextEditingController();
+  final _tenantEmail = TextEditingController();
+  final _tenantRent = TextEditingController();
+
+
+  var db = Db();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
 
   var isLoader = false;
   var appValidator = AppValidator();
@@ -23,12 +35,28 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
         isLoader = true;
       });
 
-      // var data = {
-      //   "email": _emailController.text,
-      //   "password": _passwordController.text,
-      // };
+
+      // final user = FirebaseAuth.instance.currentUser;
+      // final userDoc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
+      // int propertyName = userDoc['propertyName'];
+      // int propertyAddress = userDoc['propertyAddress'];
+      // int propertyType = userDoc['propertyType'];
+      // int tenantName = userDoc['tenantName'];
+      // int rent = userDoc['rent'];
+
+      var data = {
+
+        'propertyName': _propertyName.text,
+        'propertyAddress': _propertyAddress.text,
+        'tenantName': _tenantName.text,
+        'tenantPhone': _tenantPhone.text,
+        'tenantEmail': _tenantEmail.text,
+        'tenantRent': _tenantRent.text
+      };
       //
       // await authService.login(data, context);
+      await db.addProperty(data);
+
 
       setState(() {
         isLoader = false;
@@ -87,24 +115,28 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
             child: Column(
               children: [
                 TextFormField(
+                  controller: _propertyName,
                   validator: appValidator.isEmptyCheck,
                   decoration: InputDecoration(
                       labelText: 'Property Name'
                   ),
                 ),
                 TextFormField(
+                  controller: _propertyAddress,
                   validator: appValidator.isEmptyCheck,
                   decoration: InputDecoration(
                       labelText: 'Property Address'
                   ),
                 ),
                 TextFormField(
+                  controller: _tenantName,
                   validator: appValidator.isEmptyCheck,
                   decoration: InputDecoration(
                       labelText: 'Tenant\'s name'
                   ),
                 ),
                 TextFormField(
+                  controller: _tenantPhone,
                   validator: appValidator.isEmptyCheck,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
@@ -112,6 +144,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                   ),
                 ),
                 TextFormField(
+                  controller: _tenantEmail,
                   validator: appValidator.isEmptyCheck,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
@@ -119,22 +152,23 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                   ),
                 ),
                 TextFormField(
+                  controller: _tenantRent,
                   validator: appValidator.isEmptyCheck,
                   decoration: InputDecoration(
                       labelText: 'Tenant\'s Rent'
                   ),
                 ),
-                TextFormField(
-                  validator: appValidator.isEmptyCheck,
-                  onTap: () {
-                    _selectDate(context, true);
-                  },
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Timeline',
-                  ),
-                  controller: TextEditingController(text: _getFormattedTimeline()),
-                ),
+                // TextFormField(
+                //   validator: appValidator.isEmptyCheck,
+                //   onTap: () {
+                //     _selectDate(context, true);
+                //   },
+                //   readOnly: true,
+                //   decoration: InputDecoration(
+                //     labelText: 'Timeline',
+                //   ),
+                //   controller: TextEditingController(text: _getFormattedTimeline()),
+                // ),
                 SizedBox(
                   height: 12,
                 ),
