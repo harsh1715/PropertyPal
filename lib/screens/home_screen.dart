@@ -457,7 +457,7 @@ class Houses extends StatelessWidget {
                                           children: [
                                             Icon(Icons.key, color: Colors.grey),
                                             Text(
-                                              "time",
+                                              "${property['startDate']} - ${property['endDate']}",
                                               style: TextStyle(
                                                   color: Colors.black26,
                                                   fontSize: 15),

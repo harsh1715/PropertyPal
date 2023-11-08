@@ -21,6 +21,8 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   final _tenantPhone = TextEditingController();
   final _tenantEmail = TextEditingController();
   final _tenantRent = TextEditingController();
+  final _startDateController = TextEditingController();
+  final _endDateController = TextEditingController();
 
 
   var db = Db();
@@ -51,7 +53,9 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
         'tenantName': _tenantName.text,
         'tenantPhone': _tenantPhone.text,
         'tenantEmail': _tenantEmail.text,
-        'tenantRent': _tenantRent.text
+        'tenantRent': _tenantRent.text,
+        'startDate': _startDateController.text,
+        'endDate': _endDateController.text
       };
       //
       // await authService.login(data, context);
@@ -69,13 +73,21 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   DateTime? _startDate;
   DateTime? _endDate;
 
+
+
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final DateTime currentDate = DateTime.now();
-    final DateTime lastDate = currentDate.add(Duration(days: 30)); // Adjust this to your desired timeline
+    DateTime initialDate = currentDate;
+
+    if (_startDate != null && isStartDate) {
+      initialDate = _startDate!;
+    }
+
+    final DateTime lastDate = initialDate.add(Duration(days: 30)); // Add 30 days to the initial date
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: currentDate,
+      initialDate: initialDate,
       firstDate: currentDate,
       lastDate: lastDate,
     );
@@ -84,8 +96,10 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
       setState(() {
         if (isStartDate) {
           _startDate = picked;
+          _startDateController.text = DateFormat.yMMMd().format(picked);
         } else {
           _endDate = picked;
+          _endDateController.text = DateFormat.yMMMd().format(picked);
         }
       });
     }
@@ -173,17 +187,28 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                       labelText: 'Tenant\'s Rent'
                   ),
                 ),
-                // TextFormField(
-                //   validator: appValidator.isEmptyCheck,
-                //   onTap: () {
-                //     _selectDate(context, true);
-                //   },
-                //   readOnly: true,
-                //   decoration: InputDecoration(
-                //     labelText: 'Timeline',
-                //   ),
-                //   controller: TextEditingController(text: _getFormattedTimeline()),
-                // ),
+                TextFormField(
+                  validator: appValidator.isEmptyCheck,
+                  onTap: () {
+                    _selectDate(context, true);
+                  },
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'Start Date',
+                  ),
+                  controller: _startDateController,
+                ),
+                TextFormField(
+                  validator: appValidator.isEmptyCheck,
+                  onTap: () {
+                    _selectDate(context, false);
+                  },
+                  readOnly: true,
+                  decoration: InputDecoration(
+                    labelText: 'End Date',
+                  ),
+                  controller: _endDateController,
+                ),
                 SizedBox(
                   height: 12,
                 ),
