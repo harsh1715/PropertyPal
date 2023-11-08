@@ -128,13 +128,14 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                   onTap: () {
                     showModalBottomSheet(
                       context: context,
-                      builder: (context) => SearchLocationScreen(),
+                      builder: (context) => SearchLocationScreen(
+                        onLocationSelected: (selectedLocation) {
+                          setState(() {
+                            _propertyAddress.text = selectedLocation;
+                          });
+                        },
+                      ),
                     ).then((selectedLocation) {
-                      if (selectedLocation != null) {
-                        setState(() {
-                          _propertyAddress.text = selectedLocation;
-                        });
-                      }
                     });
                   },
                   decoration: InputDecoration(

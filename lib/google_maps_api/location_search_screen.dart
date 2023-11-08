@@ -5,7 +5,9 @@ import 'network_utility.dart';
 import 'auto_complete_address.dart';
 
 class SearchLocationScreen extends StatefulWidget {
-  const SearchLocationScreen({Key? key}) : super(key: key);
+  const SearchLocationScreen({Key? key, required this.onLocationSelected}) : super(key: key);
+
+  final void Function(String selectedLocation) onLocationSelected;
 
   @override
   State<SearchLocationScreen> createState() => _SearchLocationScreenState();
@@ -37,6 +39,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
   }
 
   void updateSearchBar(String selectedLocation) {
+    widget.onLocationSelected(selectedLocation);
     setState(() {
       textEditingController.text = selectedLocation;
       placePredictions = [];
