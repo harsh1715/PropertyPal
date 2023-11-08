@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:propertypal/utils/appvalidator.dart';
 
+import '../google_maps_api/location_search_screen.dart';
 import '../services/db.dart';
 
 class AddPropertyForm extends StatefulWidget {
@@ -120,13 +121,27 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                       labelText: 'Property Name'
                   ),
                 ),
+
                 TextFormField(
                   controller: _propertyAddress,
                   validator: appValidator.isEmptyCheck,
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: (context) => SearchLocationScreen(),
+                    ).then((selectedLocation) {
+                      if (selectedLocation != null) {
+                        setState(() {
+                          _propertyAddress.text = selectedLocation;
+                        });
+                      }
+                    });
+                  },
                   decoration: InputDecoration(
-                      labelText: 'Property Address'
+                    labelText: 'Property Address',
                   ),
                 ),
+
                 TextFormField(
                   controller: _tenantName,
                   validator: appValidator.isEmptyCheck,
