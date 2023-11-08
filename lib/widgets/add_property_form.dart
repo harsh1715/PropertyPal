@@ -65,6 +65,8 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
       setState(() {
         isLoader = false;
       });
+
+      Navigator.pop(context);
     }
   }
 
@@ -167,7 +169,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                 TextFormField(
                   controller: _tenantPhone,
                   validator: appValidator.isEmptyCheck,
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                       labelText: 'Tenant\'s Phone number'
                   ),
@@ -183,6 +185,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                 TextFormField(
                   controller: _tenantRent,
                   validator: appValidator.isEmptyCheck,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                       labelText: 'Tenant\'s Rent'
                   ),
@@ -214,9 +217,9 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                 ),
                 ElevatedButton(
                     onPressed: (){
+                      //isLoader ? print("Loading") : _submitForm();
                       if (isLoader == false){
                         _submitForm();
-                        Navigator.pop(context);
                       }
                     },
                     child:
