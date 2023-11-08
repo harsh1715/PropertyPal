@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/dashboard.dart';
@@ -53,9 +54,19 @@ class AuthService{
   }
 
   Future<void> deleteAccount(BuildContext context) async {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+    var userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference documentReference = FirebaseFirestore.instance.collection('users').doc(userID);
+    CollectionReference collectionReference = FirebaseFirestore.instance.collection('users').doc(userID).collection('properties');
+
+
+
     User user = FirebaseAuth.instance.currentUser!;
     try {
       await user.delete();
+      await documentReference.delete();
+      await collectionReference.parent!.delete();
+
       Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
     } catch (e) {
       showDialog(

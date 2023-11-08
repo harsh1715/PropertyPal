@@ -45,7 +45,6 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
       // int rent = userDoc['rent'];
 
       var data = {
-
         'propertyName': _propertyName.text,
         'propertyAddress': _propertyAddress.text,
         'tenantName': _tenantName.text,
@@ -176,6 +175,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                     onPressed: (){
                       if (isLoader == false){
                         _submitForm();
+                        Navigator.pop(context);
                       }
                     },
                     child:
