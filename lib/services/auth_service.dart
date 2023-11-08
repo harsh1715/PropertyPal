@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/dashboard.dart';
+import 'package:propertypal/screens/login_screens.dart';
 
 import 'db.dart';
 
@@ -51,4 +52,21 @@ class AuthService{
     }
   }
 
+  Future<void> deleteAccount(BuildContext context) async {
+    User user = FirebaseAuth.instance.currentUser!;
+    try {
+      await user.delete();
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Login()));
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text("Account Deletion Failed"),
+            content: Text(e.toString()),
+          );
+        },
+      );
+    }
+  }
 }
