@@ -29,6 +29,8 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  int? _selectedDuration;
+
   var isLoader = false;
   var appValidator = AppValidator();
 
@@ -55,7 +57,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
         'tenantEmail': _tenantEmail.text,
         'tenantRent': _tenantRent.text,
         'startDate': _startDateController.text,
-        'endDate': _endDateController.text
+        'endDate': _calculateEndDate(),
       };
       //
       // await authService.login(data, context);
@@ -77,45 +79,68 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
 
 
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+  Future<void> _selectDate(BuildContext context) async {
     final DateTime currentDate = DateTime.now();
-    DateTime initialDate = currentDate;
+    final DateTime lastDate = DateTime(2040, 12, 31); // Adjust to your desired end date
 
-    if (_startDate != null && isStartDate) {
-      initialDate = _startDate!;
-    }
+    DateTime initialDate = currentDate; // Example: allow selecting a date 30 days before the current date
 
-    final DateTime lastDate = initialDate.add(Duration(days: 30)); // Add 30 days to the initial date
 
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,
-      firstDate: currentDate,
+      firstDate: DateTime(2020), // Set to a date before or equal to initialDate
       lastDate: lastDate,
     );
 
     if (picked != null) {
       setState(() {
-        if (isStartDate) {
-          _startDate = picked;
-          _startDateController.text = DateFormat.yMMMd().format(picked);
-        } else {
-          _endDate = picked;
-          _endDateController.text = DateFormat.yMMMd().format(picked);
-        }
+        _startDate = picked;
+        _startDateController.text = DateFormat.yMMMd().format(picked);
       });
     }
   }
 
-  String _getFormattedTimeline() {
-    if (_startDate != null && _endDate != null) {
-      final startDateString = DateFormat.yMMMd().format(_startDate!);
-      final endDateString = DateFormat.yMMMd().format(_endDate!);
-      return '$startDateString - $endDateString';
-    } else {
-      return 'Select Timeline';
+  Future<void> _selectDuration(BuildContext context) async {
+    final int? selected = await showDialog<int>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Select Duration (Months)'),
+          content: DropdownButton<int>(
+            items: List.generate(
+              12,
+                  (index) => DropdownMenuItem<int>(
+                value: index + 1,
+                child: Text((index + 1).toString()),
+              ),
+            ),
+            onChanged: (value) {
+              Navigator.pop(context, value);
+            },
+            value: _selectedDuration,
+          ),
+        );
+      },
+    );
+
+    if (selected != null) {
+      setState(() {
+        _selectedDuration = selected;
+      });
     }
   }
+
+  String _calculateEndDate() {
+    if (_startDate != null && _selectedDuration != null) {
+      final daysInMonth = 30.44;
+      final endDate = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()));
+      return DateFormat.yMMMd().format(endDate);
+    } else {
+      return '';
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +218,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                 TextFormField(
                   validator: appValidator.isEmptyCheck,
                   onTap: () {
-                    _selectDate(context, true);
+                    _selectDate(context);
                   },
                   readOnly: true,
                   decoration: InputDecoration(
@@ -202,16 +227,36 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                   controller: _startDateController,
                 ),
                 TextFormField(
-                  validator: appValidator.isEmptyCheck,
-                  onTap: () {
-                    _selectDate(context, false);
+                  validator: (value) {
+                    if (_selectedDuration == null) {
+                      return 'Select duration';
+                    }
+                    return null;
                   },
                   readOnly: true,
                   decoration: InputDecoration(
-                    labelText: 'End Date',
+                    labelText: 'Duration (Months)',
                   ),
-                  controller: _endDateController,
+                  onTap: () {
+                    _selectDuration(context);
+                  },
+                  controller: TextEditingController(
+                    text: _selectedDuration != null
+                        ? _selectedDuration.toString()
+                        : '',
+                  ),
                 ),
+                // TextFormField(
+                //   validator: appValidator.isEmptyCheck,
+                //   onTap: () {
+                //     _selectDate(context);
+                //   },
+                //   readOnly: true,
+                //   decoration: InputDecoration(
+                //     labelText: 'End Date',
+                //   ),
+                //   controller: _endDateController,
+                // ),
                 SizedBox(
                   height: 12,
                 ),
@@ -234,3 +279,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
     );
   }
 }
+
+
+
+
