@@ -45,9 +45,9 @@ class _SignUpState extends State<SignUp> {
       setState(() {
         isLoader = false;
       });
-      // ScaffoldMessenger.of(_formKey.currentContext!).showSnackBar(
-      //   const SnackBar(content: Text("Form submitted successfully"))
-      // );
+      ScaffoldMessenger.of(_formKey.currentContext!).showSnackBar(
+        const SnackBar(content: Text("Welcome to PropertyPal"))
+      );
     }
   }
 

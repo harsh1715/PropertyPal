@@ -4,7 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:propertypal/utils/appvalidator.dart';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import '../google_maps_api/location_search_screen.dart';
+import '../screens/notification/notification.dart';
 import '../services/db.dart';
 
 class AddPropertyForm extends StatefulWidget {
@@ -25,6 +29,13 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   final _endDateController = TextEditingController();
 
 
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+
+  final _notifications = Notifications();
+
+
   var db = Db();
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -40,15 +51,6 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
         isLoader = true;
       });
 
-
-      // final user = FirebaseAuth.instance.currentUser;
-      // final userDoc = await FirebaseFirestore.instance.collection('users').doc(user!.uid).get();
-      // int propertyName = userDoc['propertyName'];
-      // int propertyAddress = userDoc['propertyAddress'];
-      // int propertyType = userDoc['propertyType'];
-      // int tenantName = userDoc['tenantName'];
-      // int rent = userDoc['rent'];
-
       var data = {
         'propertyName': _propertyName.text,
         'propertyAddress': _propertyAddress.text,
@@ -59,8 +61,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
         'startDate': _startDateController.text,
         'endDate': _calculateEndDate(),
       };
-      //
-      // await authService.login(data, context);
+
       await db.addProperty(data);
 
 
@@ -73,11 +74,8 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   }
 
 
-
   DateTime? _startDate;
   DateTime? _endDate;
-
-
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime currentDate = DateTime.now();
@@ -144,6 +142,10 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
 
   @override
   Widget build(BuildContext context) {
+
+    _notifications.init();
+
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Property'),
@@ -246,17 +248,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                         : '',
                   ),
                 ),
-                // TextFormField(
-                //   validator: appValidator.isEmptyCheck,
-                //   onTap: () {
-                //     _selectDate(context);
-                //   },
-                //   readOnly: true,
-                //   decoration: InputDecoration(
-                //     labelText: 'End Date',
-                //   ),
-                //   controller: _endDateController,
-                // ),
+
                 SizedBox(
                   height: 12,
                 ),
@@ -264,6 +256,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                     onPressed: (){
                       //isLoader ? print("Loading") : _submitForm();
                       if (isLoader == false){
+                        _notificationNow();
                         _submitForm();
                       }
                     },
@@ -278,8 +271,12 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
       ),
     );
   }
+
+  void _notificationNow() async{
+    _notifications.sendNotificationNow(_propertyName.text,
+        _propertyAddress.text, _endDateController.text);
+  }
+
 }
-
-
 
 
