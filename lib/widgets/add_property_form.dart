@@ -11,6 +11,9 @@ import '../google_maps_api/location_search_screen.dart';
 import '../screens/notification/notification.dart';
 import '../services/db.dart';
 
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
+
 class AddPropertyForm extends StatefulWidget {
   const AddPropertyForm({super.key});
 
@@ -143,6 +146,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
 
   @override
   Widget build(BuildContext context) {
+    tz.initializeTimeZones();
 
     _notifications.init();
 
@@ -285,7 +289,8 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
     // var when = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()-5));
 
     final daysInMonth = 10;
-    var when = _startDate!.add(Duration(seconds: (_selectedDuration! * daysInMonth).round()-5));
+    var when = tz.TZDateTime.from(_startDate!,tz.local).add(Duration(seconds: (_selectedDuration! * daysInMonth).round()-5));
+    //var when = tz._startDate!.add(Duration(seconds: (_selectedDuration! * daysInMonth).round()-5));
 
     await _notifications.sendNotificationLater(
       "${_tenantName.text}\'s Payment Due", "${_tenantName.text}\'s Payment is due in 5 days", "", when);
