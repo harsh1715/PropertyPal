@@ -129,10 +129,11 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
     }
   }
 
+  var endDate;
   String _calculateEndDate() {
     if (_startDate != null && _selectedDuration != null) {
       final daysInMonth = 30.44;
-      final endDate = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()));
+      endDate = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()));
       return DateFormat.yMMMd().format(endDate);
     } else {
       return '';
@@ -257,6 +258,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                       //isLoader ? print("Loading") : _submitForm();
                       if (isLoader == false){
                         _notificationNow();
+                        _notificationLater();
                         _submitForm();
                       }
                     },
@@ -273,8 +275,28 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   }
 
   void _notificationNow() async{
-    _notifications.sendNotificationNow(_propertyName.text,
-        _propertyAddress.text, _endDateController.text);
+    _notifications.sendNotificationNow("${_tenantName.text}\'s Property Added",
+        "We will notify you 5 days before the end date.", _startDateController.text);
+  }
+
+  Future _notificationLater() async{
+
+    // final daysInMonth = 30.44;
+    // var when = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()-5));
+
+    final daysInMonth = 10;
+    var when = _startDate!.add(Duration(seconds: (_selectedDuration! * daysInMonth).round()-5));
+
+    await _notifications.sendNotificationLater(
+      "${_tenantName.text}\'s Payment Due", "${_tenantName.text}\'s Payment is due in 5 days", "", when);
+
+    var snackBar = SnackBar(
+      content: Text("Notification in 3 seconds",
+        style: TextStyle(fontSize: 30),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
   }
 
 }

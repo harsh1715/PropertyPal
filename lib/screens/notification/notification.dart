@@ -62,7 +62,7 @@ class Notifications{
   }
 
   sendNotificationLater(String title,
-      String body, String payload, TZDateTime when){
+      String body, String payload, var when){
     return _flutterLocalNotificationsPlugin.zonedSchedule(
       _notificationID++,
       title,
