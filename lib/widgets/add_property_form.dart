@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:propertypal/utils/appvalidator.dart';
 import '../google_maps_api/location_search_screen.dart';
 import '../screens/notification/notification.dart';
 import '../services/db.dart';
+import 'dart:async';
 
 
 class AddPropertyForm extends StatefulWidget {
@@ -255,12 +257,15 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   }
 
   void _notificationLater() async {
-    // Add a delay of 3 seconds
-    final daysInMonth = 30.44;
-    await Future.delayed(Duration(days: (_selectedDuration! * daysInMonth).round()-5));
-     _notifications.sendNotificationNow(
-        "Payment Update", "${_tenantName.text}'s payment is due in 5 days", "");
+    final daysInMonth = 10;
+    String currentMonth = DateFormat('MMMM').format(DateTime.now());
+    for (int i = 1; i <= _selectedDuration!; i++) {
+      int delayDays = (daysInMonth).round();
+      await Future.delayed(Duration(seconds: delayDays-5));
+      _notifications.sendNotificationNow("Payment Update","${_tenantName.text}'s payment is due in 5 days for $currentMonth","" );
+    }
   }
+
 
 }
 
