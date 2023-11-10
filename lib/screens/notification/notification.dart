@@ -1,6 +1,4 @@
-
 import 'dart:io';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 
@@ -10,7 +8,6 @@ class Notifications{
   final channelName = "Test Notification";
   final channelDescription = "Test Notification Description";
 
-  //Configure plugin using platform specific details
   var _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   NotificationDetails? _platformChannelInfo;
   var _notificationID = 100;
@@ -49,7 +46,6 @@ class Notifications{
       android: androidChannelInfo,
       iOS: iosChannelInfo,
     );
-
   }
 
   void sendNotificationNow(String title, String body, String payload){
@@ -88,7 +84,6 @@ class Notifications{
           "${notificationResponse.payload}");
     }
   }
-
   _requestIOSPermission(){
     _flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation
     <IOSFlutterLocalNotificationsPlugin>()!.requestPermissions(

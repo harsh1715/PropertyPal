@@ -3,13 +3,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/welcome_screen.dart';
-
 import '../widgets/add_property_form.dart';
 import 'login_screens.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key});
-
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }

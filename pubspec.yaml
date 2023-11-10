@@ -40,6 +40,7 @@ dependencies:
   http: ^0.13.5
   firebase_messaging:
   flutter_local_notifications:
+  timezone:
 
 
   # The following adds the Cupertino Icons font to your application.

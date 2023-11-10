@@ -1,18 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:propertypal/utils/appvalidator.dart';
-
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
 import '../google_maps_api/location_search_screen.dart';
 import '../screens/notification/notification.dart';
 import '../services/db.dart';
 
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 
 class AddPropertyForm extends StatefulWidget {
   const AddPropertyForm({super.key});
@@ -32,17 +24,9 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   final _endDateController = TextEditingController();
 
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
-
   final _notifications = Notifications();
-
-
   var db = Db();
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   int? _selectedDuration;
 
   var isLoader = false;
@@ -64,21 +48,15 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
         'startDate': _startDateController.text,
         'endDate': _calculateEndDate(),
       };
-
       await db.addProperty(data);
-
-
       setState(() {
         isLoader = false;
       });
-
       Navigator.pop(context);
     }
   }
 
-
   DateTime? _startDate;
-  DateTime? _endDate;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime currentDate = DateTime.now();
@@ -132,11 +110,10 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
     }
   }
 
-  var endDate;
   String _calculateEndDate() {
     if (_startDate != null && _selectedDuration != null) {
       final daysInMonth = 30.44;
-      endDate = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()));
+      final endDate = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()));
       return DateFormat.yMMMd().format(endDate);
     } else {
       return '';
@@ -146,11 +123,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
 
   @override
   Widget build(BuildContext context) {
-    tz.initializeTimeZones();
-
     _notifications.init();
-
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Property'),
@@ -169,7 +142,6 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                       labelText: 'Property Name'
                   ),
                 ),
-
                 TextFormField(
                   controller: _propertyAddress,
                   validator: appValidator.isEmptyCheck,
@@ -190,7 +162,6 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                     labelText: 'Property Address',
                   ),
                 ),
-
                 TextFormField(
                   controller: _tenantName,
                   validator: appValidator.isEmptyCheck,
@@ -253,7 +224,6 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                         : '',
                   ),
                 ),
-
                 SizedBox(
                   height: 12,
                 ),
@@ -278,32 +248,21 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
     );
   }
 
+
   void _notificationNow() async{
     _notifications.sendNotificationNow("${_tenantName.text}\'s Property Added",
         "We will notify you 5 days before the end date.", _startDateController.text);
   }
 
-  Future _notificationLater() async{
-
-    // final daysInMonth = 30.44;
-    // var when = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()-5));
-
-    final daysInMonth = 10;
-    var when = tz.TZDateTime.from(_startDate!,tz.local).add(Duration(seconds: (_selectedDuration! * daysInMonth).round()-5));
-    //var when = tz._startDate!.add(Duration(seconds: (_selectedDuration! * daysInMonth).round()-5));
-
-    await _notifications.sendNotificationLater(
-      "${_tenantName.text}\'s Payment Due", "${_tenantName.text}\'s Payment is due in 5 days", "", when);
-
-    var snackBar = SnackBar(
-      content: Text("Notification in 3 seconds",
-        style: TextStyle(fontSize: 30),
-      ),
-    );
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
+  void _notificationLater() async {
+    // Add a delay of 3 seconds
+    final daysInMonth = 30.44;
+    await Future.delayed(Duration(days: (_selectedDuration! * daysInMonth).round()-5));
+     _notifications.sendNotificationNow(
+        "Payment Update", "${_tenantName.text}'s payment is due in 5 days", "");
   }
 
 }
+
 
 

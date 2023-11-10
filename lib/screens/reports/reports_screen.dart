@@ -122,10 +122,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
-
   @override
   _ReportScreenState createState() => _ReportScreenState();
 }
@@ -144,37 +142,27 @@ class _ReportScreenState extends State<ReportScreen> {
   // }
 
 
-
   void retrieveUserProperties() {
     try {
-      // Get the currently signed-in user
       User? user = FirebaseAuth.instance.currentUser;
 
-      // Check if the user is signed in
       if (user != null) {
-        // Get the user's ID
         String userId = user.uid;
 
-        // Create a reference to the user's document in the "users" collection
         DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(userId);
 
-        // Retrieve the user's document
         userRef.get().then((DocumentSnapshot userSnapshot) {
           if (userSnapshot.exists) {
-            // Retrieve the "properties" subcollection within the user's document
             CollectionReference propertiesCollection = userSnapshot.reference.collection('properties');
 
-            // Retrieve all documents in the "properties" subcollection
             propertiesCollection.get().then((QuerySnapshot propertiesSnapshot) {
               List<String> propertyNames = [];
 
-              // Loop through the documents and add their names to the list
               propertiesSnapshot.docs.forEach((QueryDocumentSnapshot propertySnapshot) {
                 String propertyName = propertySnapshot.id;
                 propertyNames.add(propertyName);
               });
 
-              // Display the list of property names and update the subtitle
               displayProperties(propertyNames);
             });
           } else {
@@ -197,7 +185,7 @@ class _ReportScreenState extends State<ReportScreen> {
         return AlertDialog(
           title: const Text('Properties'),
           content: DropdownButton<String>(
-            value: null, // Set the initial value here
+            value: null,
             items: propertyNames.map((String propertyName) {
               return DropdownMenuItem<String>(
                 value: propertyName,
@@ -205,7 +193,7 @@ class _ReportScreenState extends State<ReportScreen> {
               );
             }).toList(),
             onChanged: (String? newValue) {
-              // Handle the selected value here
+
               setState(() {
                 titleText = newValue;
               });

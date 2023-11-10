@@ -1,10 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/sign_up.dart';
-
 import '../services/auth_service.dart';
 import '../utils/appvalidator.dart';
-import 'dashboard.dart';
 
 class Login extends StatefulWidget {
   Login({super.key});
