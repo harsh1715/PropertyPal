@@ -273,11 +273,11 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   }
 
   void _notificationLater() async {
-    final daysInMonth = 10;
+    final daysInMonth = 30.44;
     String currentMonth = DateFormat('MMMM').format(DateTime.now());
     for (int i = 1; i <= _selectedDuration!; i++) {
       int delayDays = (daysInMonth).round();
-      await Future.delayed(Duration(seconds: delayDays-5));
+      await Future.delayed(Duration(days: delayDays-5));
       _notifications.sendNotificationNow("Payment Update","${_tenantName.text}'s payment is due in 5 days for $currentMonth","" );
     }
   }
