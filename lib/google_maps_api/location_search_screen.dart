@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'location_list_tile.dart';
 import 'network_utility.dart';
 import 'auto_complete_address.dart';
@@ -40,6 +39,7 @@ class _SearchLocationScreenState extends State<SearchLocationScreen> {
 
   void updateSearchBar(String selectedLocation) {
     widget.onLocationSelected(selectedLocation);
+    Navigator.pop(context, selectedLocation);
     setState(() {
       textEditingController.text = selectedLocation;
       placePredictions = [];

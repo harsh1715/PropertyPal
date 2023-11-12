@@ -24,6 +24,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
   final _tenantRent = TextEditingController();
   final _startDateController = TextEditingController();
   final _endDateController = TextEditingController();
+  final FocusNode _propertyAddressFocus = FocusNode();
 
 
   final _notifications = Notifications();
@@ -144,26 +145,41 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
                       labelText: 'Property Name'
                   ),
                 ),
+
+
                 TextFormField(
                   controller: _propertyAddress,
                   validator: appValidator.isEmptyCheck,
-                  onTap: () {
-                    showModalBottomSheet(
+                  focusNode: _propertyAddressFocus,
+                  onTap: () async {
+                    _propertyAddressFocus.unfocus();
+
+                    final selectedLocation = await showModalBottomSheet(
                       context: context,
-                      builder: (context) => SearchLocationScreen(
-                        onLocationSelected: (selectedLocation) {
-                          setState(() {
-                            _propertyAddress.text = selectedLocation;
-                          });
-                        },
-                      ),
-                    ).then((selectedLocation) {
-                    });
+                      isScrollControlled: true,
+                      builder: (context) {
+                        return Container(
+                          height: MediaQuery.of(context).size.height * 0.8,
+                          child: SearchLocationScreen(
+                            onLocationSelected: (selectedLocation) {
+                              _propertyAddress.text = selectedLocation;
+                            },
+                          ),
+                        );
+                      },
+                    );
+                    if (selectedLocation != null) {
+                      setState(() {
+                        _propertyAddress.text = selectedLocation;
+                      });
+                    }
                   },
                   decoration: InputDecoration(
                     labelText: 'Property Address',
                   ),
                 ),
+
+
                 TextFormField(
                   controller: _tenantName,
                   validator: appValidator.isEmptyCheck,
@@ -265,9 +281,4 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
       _notifications.sendNotificationNow("Payment Update","${_tenantName.text}'s payment is due in 5 days for $currentMonth","" );
     }
   }
-
-
 }
-
-
-
