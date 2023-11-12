@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
+import 'change_password.dart';
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({Key? key});
@@ -21,6 +22,29 @@ class _AccountState extends State<AccountScreen> {
   }
 
   @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: Text('Account'),
+  //     ),
+  //     body: _user != null
+  //         ? Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: <Widget>[
+  //         buildListTile("Change Password", () {
+  //           // Handle change password
+  //         }),
+  //         buildListTile("Delete Account", () {
+  //           showDeleteConfirmationDialog(context, _authService);
+  //         }),
+  //       ],
+  //     )
+  //         : Center(
+  //       child: CircularProgressIndicator(),
+  //     ),
+  //   );
+  // }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -31,7 +55,12 @@ class _AccountState extends State<AccountScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           buildListTile("Change Password", () {
-            // Handle change password
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChangePasswordScreen(),
+              ),
+            );
           }),
           buildListTile("Delete Account", () {
             showDeleteConfirmationDialog(context, _authService);
