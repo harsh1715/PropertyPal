@@ -94,19 +94,32 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body:
-      //ApartmentWidget(userId: userID)
-      Column(
-        //crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          HouseWidget(userId: userID),
-          ApartmentWidget(userId: userID),
-        ],
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            TabBar(
+              labelColor: Colors.blue,
+              unselectedLabelColor: Colors.black,
+              tabs: [
+                Tab(text: 'Houses'),
+                Tab(text: 'Apartments'),
+              ],
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  HouseWidget(userId: userID),
+                  ApartmentWidget(userId: userID),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
-
 
 
 
