@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:propertypal/screens/properties/apartment.dart';
 import 'package:propertypal/screens/properties/house.dart';
-import 'package:propertypal/screens/welcome_screen.dart';
+import 'package:propertypal/widgets/add_apartment_form.dart';
 import '../widgets/add_property_form.dart';
 import 'login_screens.dart';
 
@@ -32,6 +33,45 @@ class _HomeScreenState extends State<HomeScreen> {
   final userID = FirebaseAuth.instance.currentUser!.uid;
 
 
+  void showAddOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Add"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AddPropertyForm(),
+                    ),
+                  );
+                },
+                child: Text("Add Property"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AddApartmentForm(),
+                    ),
+                  );
+                },
+                child: Text("Add Apartment"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddPropertyForm()));
+              showAddOptionsDialog();
             },
             icon: isLogoutLoading
                 ? CircularProgressIndicator()
@@ -54,47 +94,19 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
-      body: HouseWidget(userId: userID)
+      body:
+      //ApartmentWidget(userId: userID)
+      Column(
+        //crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          HouseWidget(userId: userID),
+          ApartmentWidget(userId: userID),
+        ],
+      ),
     );
   }
 }
 
-class HouseWidget extends StatelessWidget {
-  HouseWidget({
-    super.key,
-    required this.userId,
-  });
 
-  final String? userId;
-
-  Widget build(BuildContext context) {
-    final Stream<DocumentSnapshot> _usersStream =
-    FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
-    return StreamBuilder<DocumentSnapshot>(
-      stream: _usersStream,
-      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-        if (snapshot.hasError) {
-          return Text('Something went wrong');
-        }
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          return const Text("Document does not exist");
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
-        }
-        var data = snapshot.data!.data() as Map<String, dynamic>;
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Text("Loading");
-        }
-
-        return Houses(
-          userId: userId,
-        );
-      },
-    );
-  }
-}
 
 

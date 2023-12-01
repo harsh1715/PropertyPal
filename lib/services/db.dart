@@ -45,4 +45,24 @@ class Db{
       });
   }
 
+  Future<void> addApartment(data) async{
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDocRef = users.doc(userID);
+    CollectionReference additionalCollection = userDocRef.collection('apartments');
+
+    QuerySnapshot querySnapshot = await additionalCollection.get();
+    int propertyCount = querySnapshot.docs.length;
+
+
+    String newPropertyName = 'unit${propertyCount + 1}';
+
+    await additionalCollection
+        .doc(newPropertyName)
+        .set(data)
+        .then((value) => print("Data Added to Additional Collection"))
+        .catchError((error) {
+      print("Failed");
+    });
+  }
+
 }
