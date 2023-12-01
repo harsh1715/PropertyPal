@@ -18,7 +18,7 @@ class _ReminderScreenState extends State<ReminderScreen> {
   // Function to handle navigation to the next page
   void navigateToRemindersDetails() {
     // Replace with your navigation logic
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => RemindersDetails()));
+    //Navigator.of(context).push(MaterialPageRoute(builder: (context) => RemindersDetails()));
   }
 
   @override

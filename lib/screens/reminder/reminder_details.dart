@@ -7,13 +7,17 @@ import 'PaymentsTab.dart';
 import '../../widgets/navbar.dart';
 
 class RemindersDetails extends StatelessWidget {
-  const RemindersDetails({Key? key});
+
+  final Map<String, dynamic> propertyInfo;
+
+  const RemindersDetails({Key? key, required this.propertyInfo}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("James Richard"),
+        title: Text(propertyInfo['tenantName']),
       ),
       body: DefaultTabController(
         length: 4,
@@ -34,7 +38,7 @@ class RemindersDetails extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  DetailsTab(),
+                  DetailsTab(property: propertyInfo),
                   BalanceTab(),
                   InvoicesTab(),
                   PaymentsTab(),
@@ -44,10 +48,10 @@ class RemindersDetails extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: NavBar(
-        selectedIndex: 0,
-        onDestinationSelected: (int value) {},
-      ),
+      // bottomNavigationBar: NavBar(
+      //   selectedIndex: 0,
+      //   onDestinationSelected: (int value) {},
+      // ),
     );
   }
 }

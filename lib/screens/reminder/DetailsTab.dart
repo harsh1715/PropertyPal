@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class DetailsTab extends StatelessWidget {
-  const DetailsTab({Key? key});
+
+  final Map<String, dynamic> property;
+
+  const DetailsTab({Key? key, required this.property}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +24,12 @@ class DetailsTab extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.blue.shade200,
                   ),
-                  child: const Align(
+                  child: Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
                       padding: EdgeInsets.only(left: 16),
                       child: Text(
-                        "James Richard",
+                        property['tenantName'],
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -36,7 +40,6 @@ class DetailsTab extends StatelessWidget {
               ),
             ],
           ),
-          // Phone Section
           Row(
             children: [
               Expanded(
@@ -76,7 +79,7 @@ class DetailsTab extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(right: 16),
                       child: Text(
-                        "905-727-2023",
+                        property['tenantPhone'],
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -127,7 +130,7 @@ class DetailsTab extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(right: 16),
                       child: Text(
-                        "james@gmail.com",
+                        property['tenantEmail'],
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -223,7 +226,7 @@ class DetailsTab extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(right: 16),
                       child: Text(
-                        "\$1,600",
+                        "\$ ${property['tenantRent']}",
                         style: TextStyle(
                           color: Colors.black,
                         ),
