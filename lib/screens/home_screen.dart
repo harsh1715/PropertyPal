@@ -32,13 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final userID = FirebaseAuth.instance.currentUser!.uid;
 
-
   void showAddOptionsDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Add"),
+          title: Text("Add Property"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -51,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 },
-                child: Text("Add Property"),
+                child: Text("Add House"),
               ),
               ElevatedButton(
                 onPressed: () {

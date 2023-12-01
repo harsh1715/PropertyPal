@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../widgets/add_apartment_form.dart';
 import '../widgets/add_property_form.dart';
 import 'login_screens.dart';
 
@@ -16,6 +17,44 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeState extends State<WelcomeScreen> {
+  void showAddOptionsDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Add Property"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AddPropertyForm(),
+                    ),
+                  );
+                },
+                child: Text("Add House"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => AddApartmentForm(),
+                    ),
+                  );
+                },
+                child: Text("Add Apartment"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +69,7 @@ class _WelcomeState extends State<WelcomeScreen> {
                 children: [
                   Icon(
                     Icons.home,
-                    size: 80, // Increase the size of the icon
+                    size: 80,
                   ),
                 ],
               ),
@@ -46,7 +85,7 @@ class _WelcomeState extends State<WelcomeScreen> {
                       text: 'Welcome\n\n',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 30, // Increase the font size of "Welcome"
+                        fontSize: 30,
                       ),
                     ),
                     TextSpan(
@@ -89,17 +128,10 @@ class _WelcomeState extends State<WelcomeScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: 20), // Add some space between text and the button
+              SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  // Add functionality here for the button
-                  // For example, to navigate to a new screen for property creation
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AddPropertyForm(),
-                    ),
-                  );
+                  showAddOptionsDialog();
                 },
                 child: Text('Create a Property'),
               ),
