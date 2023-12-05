@@ -36,9 +36,14 @@ class Db{
 
     String newPropertyName = 'property${propertyCount + 1}';
 
+    Map<String, dynamic> newData = {
+      ...data,
+      'propertyId': newPropertyName,
+    };
+
     await additionalCollection
         .doc(newPropertyName)
-        .set(data)
+        .set(newData)
         .then((value) => print("Data Added to Additional Collection"))
         .catchError((error) {
               print("Failed");
@@ -54,14 +59,32 @@ class Db{
     int propertyCount = querySnapshot.docs.length;
 
 
-    String newPropertyName = 'unit${propertyCount + 1}';
+    String newPropertyName = 'apartment${propertyCount + 1}';
+
+    Map<String, dynamic> newData = {
+      ...data,
+      'propertyId': newPropertyName,
+    };
 
     await additionalCollection
         .doc(newPropertyName)
-        .set(data)
+        .set(newData)
         .then((value) => print("Data Added to Additional Collection"))
         .catchError((error) {
       print("Failed");
+    });
+  }
+
+
+  Future<void> editProperty(String propertyId, Map<String, dynamic> newData) async {
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference propertyDocRef = users.doc(userID).collection('properties').doc(propertyId);
+
+    await propertyDocRef
+        .update(newData)
+        .then((value) => print("Property Updated"))
+        .catchError((error) {
+      print("Failed to update property: $error");
     });
   }
 

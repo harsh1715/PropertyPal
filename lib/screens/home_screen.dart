@@ -41,27 +41,33 @@ class _HomeScreenState extends State<HomeScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => AddPropertyForm(),
-                    ),
-                  );
-                },
-                child: Text("Add House"),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddPropertyForm(),
+                      ),
+                    );
+                  },
+                  child: Text("Add House"),
+                ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => AddApartmentForm(),
-                    ),
-                  );
-                },
-                child: Text("Add Apartment"),
+              SizedBox(
+                width: 200,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddApartmentForm(),
+                      ),
+                    );
+                  },
+                  child: Text("Add Apartment"),
+                ),
               ),
             ],
           ),
