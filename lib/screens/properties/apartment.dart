@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:propertypal/screens/properties/unitdetails.dart';
 import '../reminder/reminder_details.dart';
 import 'apartmentDetailsOutline.dart';
-import 'apartment_details.dart';
 import '../welcome_screen.dart';
 
 class ApartmentWidget extends StatelessWidget {
@@ -82,6 +81,7 @@ class Apartments extends StatelessWidget {
             var apartment = snapshot.data!.docs[index].data() as Map<String, dynamic>;
             var apartmentId = snapshot.data!.docs[index].id;
 
+
             final Stream<QuerySnapshot> _unitsStream = FirebaseFirestore.instance
                 .collection('users')
                 .doc(userId)
@@ -102,7 +102,7 @@ class Apartments extends StatelessWidget {
 
               child: Container(
                 width: double.infinity,
-                height: 100 + (112 * 3),
+                height: 100 + (112 * 1),
                 color: Colors.green.shade200,
                 child: Column(
                   children: [
@@ -177,12 +177,25 @@ class Apartments extends StatelessWidget {
                             return Text('No Units Available');
                           }
 
-                          return ListView.builder(
+                          return
+                            ListView.builder(
                             itemCount: unitSnapshot.data!.docs.length,
                             itemBuilder: (context, unitIndex) {
                               var unit = unitSnapshot.data!.docs[unitIndex].data() as Map<String, dynamic>;
-
-                              return Stack(
+                              return GestureDetector(
+                                onTap: () {
+                                  print("Unit tapped: ${unit['unitId']}");
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => UnitDetailsPage(
+                                        userId: userId!,
+                                        apartmentId: apartmentId,
+                                        unitId: unit['unitId'],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              child: Stack(
                                 children: [
                                   Row(
                                     children: [
@@ -292,6 +305,7 @@ class Apartments extends StatelessWidget {
                                     ],
                                   ),
                                 ],
+                              ),
                               );
                             },
                           );
@@ -301,9 +315,12 @@ class Apartments extends StatelessWidget {
                   ],
                 ),
               ),
+
             );
+
           },
         );
+
       },
     );
   }

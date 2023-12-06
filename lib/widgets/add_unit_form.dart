@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:propertypal/utils/appvalidator.dart';
-import '../google_maps_api/location_search_screen.dart';
 import '../screens/notification/notification.dart';
 import '../services/db.dart';
 import 'dart:async';
+import 'auth_gate.dart';
 
 
 class AddUnitForm extends StatefulWidget {
   final String propertyId;
-
   const AddUnitForm({super.key, required this.propertyId,});
-
 
   @override
   State<AddUnitForm> createState() => _AddUnitFormState();
@@ -54,7 +51,10 @@ class _AddUnitFormState extends State<AddUnitForm> {
       setState(() {
         isLoader = false;
       });
-      Navigator.pop(context);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => AuthGate(),),
+            (route) => false,
+      );
     }
   }
 
@@ -111,7 +111,6 @@ class _AddUnitFormState extends State<AddUnitForm> {
       });
     }
   }
-
   String _calculateEndDate() {
     if (_startDate != null && _selectedDuration != null) {
       final daysInMonth = 30.44;
@@ -121,8 +120,6 @@ class _AddUnitFormState extends State<AddUnitForm> {
       return '';
     }
   }
-
-
   @override
   Widget build(BuildContext context) {
     _notifications.init();
