@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:propertypal/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
-
 import '../reminder/reminder_details.dart';
-
+import 'apartmentDetailsOutline.dart';
+import 'apartment_details.dart';
+import '../welcome_screen.dart';
 
 class ApartmentWidget extends StatelessWidget {
   ApartmentWidget({
@@ -14,6 +14,7 @@ class ApartmentWidget extends StatelessWidget {
 
   final String? userId;
 
+  @override
   Widget build(BuildContext context) {
     final Stream<DocumentSnapshot> _usersStream =
     FirebaseFirestore.instance.collection('users').doc(userId).snapshots();
@@ -67,6 +68,7 @@ class Apartments extends StatelessWidget {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          // Return your default screen (e.g., WelcomeScreen) if no data is available
           return WelcomeScreen();
         }
 
@@ -80,7 +82,7 @@ class Apartments extends StatelessWidget {
             var apartment = snapshot.data!.docs[index].data() as Map<String, dynamic>;
 
             return GestureDetector(
-              onTap: (){
+              onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => RemindersDetails(propertyInfo: apartment),
@@ -98,13 +100,24 @@ class Apartments extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          alignment: Alignment.topLeft,
-                          padding: EdgeInsets.only(left: 8, top: 8, bottom: 8),
-                          child: CircleAvatar(
-                            radius: 38,
-                            backgroundColor: Colors.black,
-                            backgroundImage: NetworkImage("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiZbuK6fmV9HA2AlunPxND83z5MFvv3VccGQ&usqp=CAU"),
+                        GestureDetector(
+                          onTap: () {
+                            // Handle the onTap for the top image to navigate to ApartmentDetails
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => ApartmentDetails(propertyInfo: apartment),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            alignment: Alignment.topLeft,
+                            padding: EdgeInsets.only(left: 8, top: 8, bottom: 8),
+                            child: CircleAvatar(
+                              radius: 38,
+                              backgroundColor: Colors.black,
+                              backgroundImage: NetworkImage(
+                                  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiZbuK6fmV9HA2AlunPxND83z5MFvv3VccGQ&usqp=CAU"),
+                            ),
                           ),
                         ),
                         Column(
@@ -128,17 +141,27 @@ class Apartments extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Container(
-                          padding: EdgeInsets.only(bottom: 2),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(right: 8.0),
-                                child: Text("${apartment['propertyAddress']}",
-                                    style: TextStyle(fontSize: 12)),
+                        GestureDetector(
+                          onTap: () {
+                            // Handle the onTap for the bottom part to navigate to RemindersDetails
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => RemindersDetails(propertyInfo: apartment),
                               ),
-                            ],
+                            );
+                          },
+                          child: Container(
+                            padding: EdgeInsets.only(bottom: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: Text("${apartment['propertyAddress']}",
+                                      style: TextStyle(fontSize: 12)),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ],
