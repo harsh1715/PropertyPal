@@ -223,7 +223,7 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                                 // Navigate to AddApartmentForm screen
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => AddApartmentForm(),
+                                    builder: (context) => AddApartmentForm(propertyId: widget.property['propertyId'],),
                                   ),
                                 );
                               },

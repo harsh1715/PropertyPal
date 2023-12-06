@@ -9,7 +9,10 @@ import 'dart:async';
 
 
 class AddApartmentForm extends StatefulWidget {
-  const AddApartmentForm({super.key});
+  final String propertyId;
+
+  const AddApartmentForm({super.key, required this.propertyId,});
+
 
   @override
   State<AddApartmentForm> createState() => _AddApartmentFormState();
@@ -47,7 +50,7 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
         'startDate': _startDateController.text,
         'endDate': _calculateEndDate(),
       };
-      await db.addApartment(data);
+      await db.addUnit(widget.propertyId, data);
       setState(() {
         isLoader = false;
       });

@@ -40,18 +40,6 @@ class Db{
 
     CollectionReference monthlyCollection = newPropertyRef.collection('monthlyDetails');
 
-    // String januaryDocumentName = 'January';
-    // Map<String, dynamic> januaryData = {
-    //   'rent': "",
-    //   'paid': false,
-    // };
-    //
-    // String februaryDocumentName = 'February';
-    // Map<String, dynamic> februaryData = {
-    //   'rent': "",
-    //   'paid': false,
-    // };
-
     Map<String, dynamic> createMonthlyData() {
       const months = [
         'January', 'February', 'March', 'April', 'May', 'June',
@@ -89,9 +77,6 @@ class Db{
       monthlyCollection.doc(month).set(data);
     });
 
-    // await monthlyCollection.doc(januaryDocumentName).set(januaryData);
-    // await monthlyCollection.doc(februaryDocumentName).set(februaryData);
-
   }
 
   Future<void> addApartment(data) async{
@@ -118,6 +103,41 @@ class Db{
       print("Failed");
     });
   }
+
+  Future<void> addUnit(String apartmentId, Map<String, dynamic> data) async {
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDocRef = users.doc(userID);
+    CollectionReference apartmentsCollection = userDocRef.collection('apartments');
+    DocumentReference apartmentDocRef = apartmentsCollection.doc(apartmentId);
+
+
+    DocumentSnapshot apartmentSnapshot = await apartmentDocRef.get();
+    if (!apartmentSnapshot.exists) {
+      print("Apartment with ID $apartmentId does not exist");
+      return;
+    }
+
+    CollectionReference unitsCollection = apartmentDocRef.collection('units');
+
+    QuerySnapshot querySnapshot = await unitsCollection.get();
+    int unitCount = querySnapshot.docs.length;
+
+    String newUnitId = 'unit${unitCount + 1}';
+
+    Map<String, dynamic> newData = {
+      ...data,
+      'unitId': newUnitId,
+    };
+
+    await unitsCollection
+        .doc(newUnitId)
+        .set(newData)
+        .then((value) => print("Data Added to Units Collection"))
+        .catchError((error) {
+      print("Failed to add unit: $error");
+    });
+  }
+
 
 
   Future<void> editProperty(String propertyId, Map<String, dynamic> newData) async {
