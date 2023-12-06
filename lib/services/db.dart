@@ -36,6 +36,42 @@ class Db{
 
     String newPropertyName = 'property${propertyCount + 1}';
 
+    DocumentReference newPropertyRef = additionalCollection.doc(newPropertyName);
+
+    CollectionReference monthlyCollection = newPropertyRef.collection('monthlyDetails');
+
+    // String januaryDocumentName = 'January';
+    // Map<String, dynamic> januaryData = {
+    //   'rent': "",
+    //   'paid': false,
+    // };
+    //
+    // String februaryDocumentName = 'February';
+    // Map<String, dynamic> februaryData = {
+    //   'rent': "",
+    //   'paid': false,
+    // };
+
+    Map<String, dynamic> createMonthlyData() {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+
+      Map<String, dynamic> monthlyData = {};
+
+      for (String month in months) {
+        monthlyData[month] = {
+          'rent': "",
+          'paid': false,
+        };
+      }
+
+      return monthlyData;
+    }
+
+    Map<String, dynamic> monthlyData = createMonthlyData();
+
     Map<String, dynamic> newData = {
       ...data,
       'propertyId': newPropertyName,
@@ -48,6 +84,14 @@ class Db{
         .catchError((error) {
               print("Failed");
       });
+
+    monthlyData.forEach((month, data) {
+      monthlyCollection.doc(month).set(data);
+    });
+
+    // await monthlyCollection.doc(januaryDocumentName).set(januaryData);
+    // await monthlyCollection.doc(februaryDocumentName).set(februaryData);
+
   }
 
   Future<void> addApartment(data) async{
