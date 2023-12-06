@@ -47,28 +47,36 @@ class ApartmentWidget extends StatelessWidget {
 
 class Apartments extends StatelessWidget {
   const Apartments({
-    super.key,
+    Key? key,
     required this.userId,
-  });
+  }) : super(key: key);
 
   final String? userId;
 
   @override
   Widget build(BuildContext context) {
-    final Stream<QuerySnapshot> _propertiesStream = FirebaseFirestore.instance
+    final Stream<QuerySnapshot> _apartmentsStream = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('apartments')
         .snapshots();
+
+    final Stream<QuerySnapshot> _unitsStream = FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('apartments')
+        .doc('apartment1') // Replace apartmentId with the actual apartment document ID
+        .collection('units')
+        .snapshots();
+
     return StreamBuilder<QuerySnapshot>(
-      stream: _propertiesStream,
+      stream: _apartmentsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return Text('Something went wrong');
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          // Return your default screen (e.g., WelcomeScreen) if no data is available
           return WelcomeScreen();
         }
 
@@ -90,9 +98,10 @@ class Apartments extends StatelessWidget {
                 );
                 print("Container tapped: ${apartment['propertyName']}");
               },
-              child: Container(
+
+            child: Container(
                 width: double.infinity,
-                height: 210,
+                height: 100 + (112 * 3),
                 color: Colors.green.shade200,
                 child: Column(
                   children: [
@@ -102,7 +111,6 @@ class Apartments extends StatelessWidget {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            // Handle the onTap for the top image to navigate to ApartmentDetails
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => ApartmentDetails(propertyInfo: apartment),
@@ -127,7 +135,7 @@ class Apartments extends StatelessWidget {
                               padding: EdgeInsets.only(top: 8, right: 8),
                               child: Row(
                                 children: [
-                                  Icon(Icons.home_filled, color: Colors.black54),
+                                  Icon(Icons.apartment, color: Colors.black54),
                                   SizedBox(width: 8),
                                   Text("${apartment['propertyName']}",
                                       style: TextStyle(fontSize: 18)),
@@ -141,131 +149,153 @@ class Apartments extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            // Handle the onTap for the bottom part to navigate to RemindersDetails
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => RemindersDetails(propertyInfo: apartment),
+                        Container(
+                          padding: EdgeInsets.only(bottom: 2),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: Text("${apartment['propertyAddress']}",
+                                    style: TextStyle(fontSize: 12)),
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.only(bottom: 2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: Text("${apartment['propertyAddress']}",
-                                      style: TextStyle(fontSize: 12)),
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                    Stack(
-                      children: [
-                        Row(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(left: 12, top: 35),
-                              child: Transform.rotate(
-                                angle: -90 * 3.1415926535 / 180,
-                                child: Container(
-                                  alignment: Alignment.bottomLeft,
-                                  child: Text(
-                                    'Home',
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Container(
-                              width: 356,
-                              height: 102,
-                              color: Colors.white,
-                              alignment: Alignment.topRight,
-                              padding: EdgeInsets.only(right: 8, top: 8, bottom: 8),
-                              child: Row(
+                    Expanded(
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: _unitsStream,
+                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> unitSnapshot) {
+                          if (unitSnapshot.hasError) {
+                            return Text('Error fetching units');
+                          }
+
+                          if (!unitSnapshot.hasData || unitSnapshot.data!.docs.isEmpty) {
+                            return Text('No units available');
+                          }
+
+                          return ListView.builder(
+                            itemCount: unitSnapshot.data!.docs.length,
+                            itemBuilder: (context, unitIndex) {
+                              var unit = unitSnapshot.data!.docs[unitIndex].data() as Map<String, dynamic>;
+
+                              return Stack(
                                 children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 8.0),
-                                          child: Row(
-                                            children: [
-                                              Text(
-                                                "${apartment['tenantName']}",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold),
+                                  Row(
+                                    children: [
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 12, top: 35),
+                                        child: Transform.rotate(
+                                          angle: -90 * 3.1415926535 / 180,
+                                          child: Container(
+                                            alignment: Alignment.bottomLeft,
+                                            child: Text(
+                                              'Building',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.black54,
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                            ],
+                                            ),
                                           ),
                                         ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 8.0),
-                                          child: Row(
-                                            children: [
-                                              Icon(Icons.key, color: Colors.grey),
-                                              Text(
-                                                "${apartment['startDate']} - ${apartment['endDate']}",
-                                                style: TextStyle(
-                                                    color: Colors.black26,
-                                                    fontSize: 15),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 8.0),
-                                          child: Row(
-                                            children: [
-                                              Text("\$${apartment['tenantRent']}",
-                                                  style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontSize: 15)),
-                                            ],
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left: 8.0, top: 7),
-                                          child: Row(
-                                            children: [
-                                              Text('Tenant Balance',
-                                                  style: TextStyle(
-                                                      color: Colors.black54,
-                                                      fontSize: 15)),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                  const CircleAvatar(
-                                    radius: 35,
-                                    backgroundColor: Colors.black,
-                                    backgroundImage: NetworkImage("https://www.livehome3d.com/assets/img/social/how-to-design-a-house.jpg"),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        width: 356,
+                                        height: 102,
+                                        color: Colors.white,
+                                        alignment: Alignment.topRight,
+                                        padding: EdgeInsets.only(right: 8, top: 8, bottom: 8),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          "${unit['tenantName']}",
+                                                          style: TextStyle(
+                                                            fontWeight: FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Icon(Icons.key, color: Colors.grey),
+                                                        Text(
+                                                          "${unit['startDate']} - ${unit['endDate']}",
+                                                          style: TextStyle(
+                                                            color: Colors.black26,
+                                                            fontSize: 15,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 8.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          "\$${unit['tenantRent']}",
+                                                          style: TextStyle(
+                                                            color: Colors.red,
+                                                            fontSize: 15,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 8.0, top: 7),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          'Tenant Balance',
+                                                          style: TextStyle(
+                                                            color: Colors.black54,
+                                                            fontSize: 15,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            const CircleAvatar(
+                                              radius: 35,
+                                              backgroundColor: Colors.black,
+                                              backgroundImage: NetworkImage(
+                                                "https://www.livehome3d.com/assets/img/social/how-to-design-a-house.jpg",
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
