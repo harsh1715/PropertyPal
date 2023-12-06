@@ -174,7 +174,7 @@ class Apartments extends StatelessWidget {
                           }
 
                           if (!unitSnapshot.hasData || unitSnapshot.data!.docs.isEmpty) {
-                            return Text('No units available');
+                            return Text('No Units Available');
                           }
 
                           return ListView.builder(

@@ -29,13 +29,16 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final Stream<QuerySnapshot> _propertiesStream = FirebaseFirestore.instance
+    final Stream<QuerySnapshot> _unitsStream = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
         .collection('apartments')
+        .doc(widget.property['propertyId']) // Use the dynamic property ID
+        .collection('units')
         .snapshots();
+
     return StreamBuilder<QuerySnapshot>(
-      stream: _propertiesStream,
+      stream: _unitsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
@@ -45,12 +48,10 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
           return Text('Error: ${snapshot.error}');
         }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Text('No data available');
-        }
-
-        DocumentSnapshot propertyDocument = snapshot.data!.docs.first;
-        Map<String, dynamic> propertyData = propertyDocument.data() as Map<String, dynamic>;
+        //test case to check if unit has not been added
+        // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        //   return Text('No units available');
+        // }
 
         return Container(
           decoration: BoxDecoration(
@@ -220,128 +221,84 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                             padding: EdgeInsets.only(right: 16),
                             child: InkWell(
                               onTap: () {
-                                // Navigate to AddApartmentForm screen
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (context) => AddApartmentForm(propertyId: widget.property['propertyId'],),
+                                    builder: (context) => AddUnitForm(propertyId: widget.property['propertyId']),
                                   ),
                                 );
                               },
-                              child: Text(
-                                "Add Apartment",
-                                style: TextStyle(
-                                  color: Colors.grey,
+                              child: Icon(
+                                Icons.add_circle_outline,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Use a ListView.builder for dynamic rendering of units and tenant names
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var unit = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                top: BorderSide(color: Colors.grey),
+                              ),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 16),
+                                child: Text(
+                                  "${unit['unitId']}",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
+                        Expanded(
+                          child: Container(
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border(
+                                top: BorderSide(color: Colors.grey),
+                              ),
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                padding: EdgeInsets.only(right: 16),
+                                child: Text(
+                                  "${unit['tenantName']}",
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 16),
-                            child: Text(
-                              "Apartment 1",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 16),
-                            child: Text(
-                              "${widget.property['tenantName']}",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 16),
-                            child: Text(
-                              "Apartment 2",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 16),
-                            child: Text(
-                              "${widget.property['tenantName']} two",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
                 // Edit button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

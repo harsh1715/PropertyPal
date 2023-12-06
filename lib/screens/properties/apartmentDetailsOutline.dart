@@ -17,10 +17,6 @@ class ApartmentDetails extends StatelessWidget {
         title: Text(propertyInfo['propertyName']),
       ),
       body: ApartmentDetailsTab(property: propertyInfo)
-      // bottomNavigationBar: NavBar(
-      //   selectedIndex: 0,
-      //   onDestinationSelected: (int value) {},
-      // ),
     );
   }
 }

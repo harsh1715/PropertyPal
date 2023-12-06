@@ -8,17 +8,17 @@ import '../services/db.dart';
 import 'dart:async';
 
 
-class AddApartmentForm extends StatefulWidget {
+class AddUnitForm extends StatefulWidget {
   final String propertyId;
 
-  const AddApartmentForm({super.key, required this.propertyId,});
+  const AddUnitForm({super.key, required this.propertyId,});
 
 
   @override
-  State<AddApartmentForm> createState() => _AddApartmentFormState();
+  State<AddUnitForm> createState() => _AddUnitFormState();
 }
 
-class _AddApartmentFormState extends State<AddApartmentForm> {
+class _AddUnitFormState extends State<AddUnitForm> {
   final _tenantName = TextEditingController();
   final _tenantPhone = TextEditingController();
   final _tenantEmail = TextEditingController();
