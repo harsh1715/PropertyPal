@@ -32,7 +32,7 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
     final Stream<QuerySnapshot> _propertiesStream = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('properties')
+        .collection('apartments')
         .snapshots();
     return StreamBuilder<QuerySnapshot>(
       stream: _propertiesStream,

@@ -30,10 +30,17 @@ class _DetailsTabState extends State<DetailsTab> {
 
   @override
   Widget build(BuildContext context) {
+    var collection = " ";
+    if (widget.property['propertyId'].contains('property')){
+      collection = "properties";
+    }
+    else if(widget.property['propertyId'].contains('apartment')){
+      collection = "apartments";
+    }
     final Stream<QuerySnapshot> _propertiesStream = FirebaseFirestore.instance
         .collection('users')
         .doc(userId)
-        .collection('properties')
+        .collection(collection)
         .snapshots();
     return StreamBuilder<QuerySnapshot>(
         stream: _propertiesStream,
@@ -60,6 +67,8 @@ class _DetailsTabState extends State<DetailsTab> {
           child: SingleChildScrollView(
             child: Column(
               children: [
+                // Rental Invoices & Payments Section
+                // Rental Fees Section
                 Row(
                   children: [
                     Expanded(
@@ -72,6 +81,56 @@ class _DetailsTabState extends State<DetailsTab> {
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Tenant Details",
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Name",
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 16),
                             child: Text(
                               widget.property['tenantName'],
                               style: TextStyle(
@@ -100,7 +159,7 @@ class _DetailsTabState extends State<DetailsTab> {
                           child: Padding(
                             padding: EdgeInsets.only(left: 16),
                             child: Text(
-                              "Phone",
+                              "Phone Number",
                               style: TextStyle(
                                 color: Colors.black,
                               ),
@@ -185,52 +244,6 @@ class _DetailsTabState extends State<DetailsTab> {
                     ),
                   ],
                 ),
-                // Rental Fees Section
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade200,
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 16),
-                            child: Text(
-                              "Rental Fees",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade200,
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 16),
-                            child: Text(
-                              "Monthly",
-                              style: TextStyle(
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Rent Section
                 Row(
                   children: [
                     Expanded(
@@ -281,7 +294,110 @@ class _DetailsTabState extends State<DetailsTab> {
                     ),
                   ],
                 ),
-                // Rental Invoices & Payments Section
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Tenancy Start Date",
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 16),
+                            child: Text(
+                              widget.property['startDate'],
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16),
+                            child: Text(
+                              "Tenancy End Date",
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border(
+                            top: BorderSide(color: Colors.grey),
+                          ),
+                        ),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 16),
+                            child: Text(
+                              widget.property['endDate'],
+                              style: TextStyle(
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+
+
+
                 Row(
                   children: [
                     Expanded(
@@ -294,59 +410,7 @@ class _DetailsTabState extends State<DetailsTab> {
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(left: 16),
-                            child: Text(
-                              "Rental Invoices & Payments",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                // Payment Due Section
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 16),
-                            child: Text(
-                              "Payment Due",
-                              style: TextStyle(
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          border: Border(
-                            top: BorderSide(color: Colors.grey),
-                          ),
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 16),
-                            child: Text(
-                              "5 days from invoice",
+                            child: Text( "Property Details",
                               style: TextStyle(
                                 color: Colors.black,
                               ),
@@ -373,7 +437,7 @@ class _DetailsTabState extends State<DetailsTab> {
                           child: Padding(
                             padding: EdgeInsets.only(left: 16),
                             child: Text(
-                              "Deposit Paid",
+                              "Property Name",
                               style: TextStyle(
                                 color: Colors.black,
                               ),
@@ -396,7 +460,7 @@ class _DetailsTabState extends State<DetailsTab> {
                           child: Padding(
                             padding: EdgeInsets.only(right: 16),
                             child: Text(
-                              "\$250",
+                              widget.property['propertyName'],
                               style: TextStyle(
                                 color: Colors.black,
                               ),
@@ -423,7 +487,7 @@ class _DetailsTabState extends State<DetailsTab> {
                           child: Padding(
                             padding: EdgeInsets.only(left: 16),
                             child: Text(
-                              "Initial Balance",
+                              "Property Address",
                               style: TextStyle(
                                 color: Colors.black,
                               ),
@@ -446,7 +510,7 @@ class _DetailsTabState extends State<DetailsTab> {
                           child: Padding(
                             padding: EdgeInsets.only(right: 16),
                             child: Text(
-                              "\$0",
+                              widget.property['propertyAddress'],
                               style: TextStyle(
                                 color: Colors.black,
                               ),
@@ -457,6 +521,8 @@ class _DetailsTabState extends State<DetailsTab> {
                     ),
                   ],
                 ),
+
+
                 // Edit button
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
