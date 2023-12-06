@@ -8,7 +8,7 @@ import '../welcome_screen.dart';
 
 class ApartmentWidget extends StatelessWidget {
   ApartmentWidget({
-    super.key,
+    Key? key,
     required this.userId,
   });
 
@@ -61,14 +61,6 @@ class Apartments extends StatelessWidget {
         .collection('apartments')
         .snapshots();
 
-    final Stream<QuerySnapshot> _unitsStream = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('apartments')
-        .doc('apartment1') // Replace apartmentId with the actual apartment document ID
-        .collection('units')
-        .snapshots();
-
     return StreamBuilder<QuerySnapshot>(
       stream: _apartmentsStream,
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -88,6 +80,15 @@ class Apartments extends StatelessWidget {
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, index) {
             var apartment = snapshot.data!.docs[index].data() as Map<String, dynamic>;
+            var apartmentId = snapshot.data!.docs[index].id;
+
+            final Stream<QuerySnapshot> _unitsStream = FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .collection('apartments')
+                .doc(apartmentId) // Use the dynamic apartment ID
+                .collection('units')
+                .snapshots();
 
             return GestureDetector(
               onTap: () {
@@ -99,7 +100,7 @@ class Apartments extends StatelessWidget {
                 print("Container tapped: ${apartment['propertyName']}");
               },
 
-            child: Container(
+              child: Container(
                 width: double.infinity,
                 height: 100 + (112 * 3),
                 color: Colors.green.shade200,
@@ -192,7 +193,7 @@ class Apartments extends StatelessWidget {
                                           child: Container(
                                             alignment: Alignment.bottomLeft,
                                             child: Text(
-                                              'Building',
+                                              "${unit['unitId']}",
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 color: Colors.black54,
