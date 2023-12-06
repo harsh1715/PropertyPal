@@ -51,7 +51,16 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
         'startDate': _startDateController.text,
         'endDate': _calculateEndDate(),
       };
+      var data1 = {
+        'tenantName': _tenantName.text,
+        'tenantPhone': _tenantPhone.text,
+        'tenantEmail': _tenantEmail.text,
+        'tenantRent': _tenantRent.text,
+        'startDate': _startDateController.text,
+        'endDate': _calculateEndDate(),
+      };
       await db.addApartment(data);
+      await db.addUnit('apartment1',data1);
       setState(() {
         isLoader = false;
       });
