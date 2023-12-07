@@ -9,7 +9,9 @@ import 'add_unit_form.dart';
 
 
 class AddApartmentForm extends StatefulWidget {
-  const AddApartmentForm({super.key});
+  final Map<String, dynamic>? initialData;
+
+  const AddApartmentForm({Key? key, this.initialData}) : super(key: key);
 
   @override
   State<AddApartmentForm> createState() => _AddApartmentFormState();
@@ -19,11 +21,21 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
   final _propertyName = TextEditingController();
   final _propertyAddress = TextEditingController();
   final FocusNode _propertyAddressFocus = FocusNode();
+
   var db = Db();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   var isLoader = false;
   var appValidator = AppValidator();
   String _propertyId = '';
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialData != null) {
+      _propertyName.text = widget.initialData!['propertyName'];
+      _propertyAddress.text = widget.initialData!['propertyAddress'];
+    }
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()){
       setState(() {

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:propertypal/widgets/auth_gate.dart';
 
+import '../../widgets/add_property_form.dart';
+
 class DetailsTab extends StatefulWidget {
   final Map<String, dynamic> property;
 
@@ -522,16 +524,34 @@ class _DetailsTabState extends State<DetailsTab> {
                   ],
                 ),
 
-
-                // Edit button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust the alignment as needed
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _showEditDialog(context);
-                      },
-                      child: Text("Edit Details"),
+                    SizedBox(
+                      width: 200,
+                      child: Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _showEditForm(context);
+                          },
+                          child: Text("Edit Details"),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: 200,
+                      child: Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _showDeleteDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.red, // Use red color for delete button
+                          ),
+                          child: Text("Delete Details"),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -542,33 +562,13 @@ class _DetailsTabState extends State<DetailsTab> {
       }
     );
   }
-
-  Future<void> _showEditDialog(BuildContext context) async {
+  Future<void> _showDeleteDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Details'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(labelText: 'Name'),
-                ),
-                TextFormField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(labelText: 'Phone'),
-                ),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(labelText: 'Email'),
-                ),
-              ],
-            ),
-          ),
+          title: Text('Delete Property'),
+          content: Text('Are you sure you want to delete this property?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -579,23 +579,112 @@ class _DetailsTabState extends State<DetailsTab> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  _updateFirestore();
+                  _deleteFirestoreEntry();
                 });
-                //Navigator.of(context).pop();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => AuthGate(),
-                  ),
-                  (route) => false,
-                );
+                Navigator.of(context).pop();
               },
-              child: Text('Save'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: Text('Delete'),
             ),
           ],
         );
       },
     );
   }
+
+  void _deleteFirestoreEntry() {
+    var collection = " ";
+    if (widget.property['propertyId'].contains('property')) {
+      collection = "properties";
+    } else if (widget.property['propertyId'].contains('apartment')) {
+      collection = "apartments";
+    }
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection(collection)
+        .doc(widget.property['propertyId'])
+        .delete()
+        .then((_) {
+      print("Firestore delete successful");
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => AuthGate(),
+        ),
+            (route) => false,
+      );
+    }).catchError((error) {
+      // Handle errors here
+      print("Error deleting Firestore entry: $error");
+    });
+  }
+  void _showEditForm(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddPropertyForm(initialData: widget.property),
+      ),
+    );
+  }
+
+  // Future<void> _showEditDialog(BuildContext context) async {
+  //   return showDialog<void>(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Edit Details'),
+  //         content: SingleChildScrollView(
+  //           child: Column(
+  //             children: [
+  //               TextFormField(
+  //                 controller: _nameController,
+  //                 decoration: InputDecoration(labelText: 'Name'),
+  //               ),
+  //               TextFormField(
+  //                 controller: _phoneController,
+  //                 keyboardType: TextInputType.phone,
+  //                 decoration: InputDecoration(labelText: 'Phone'),
+  //               ),
+  //               TextFormField(
+  //                 controller: _emailController,
+  //                 keyboardType: TextInputType.emailAddress,
+  //                 decoration: InputDecoration(labelText: 'Email'),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               setState(() {
+  //                 _updateFirestore();
+  //               });
+  //               //Navigator.of(context).pop();
+  //               Navigator.of(context).pushAndRemoveUntil(
+  //                 MaterialPageRoute(
+  //                   builder: (context) => AuthGate(),
+  //                 ),
+  //                 (route) => false,
+  //               );
+  //             },
+  //             child: Text('Save'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
   void _updateFirestore() {
     var collection = " ";
     if (widget.property['propertyId'].contains('property')){

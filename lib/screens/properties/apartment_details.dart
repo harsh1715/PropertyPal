@@ -300,14 +300,34 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                 ),
 
                 // Edit button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust the alignment as needed
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _showEditDialog(context);
-                      },
-                      child: Text("Edit Details"),
+                    SizedBox(
+                      width: 200,
+                      child: Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _showEditDialog(context);
+                          },
+                          child: Text("Edit Details"),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      width: 200,
+                      child: Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _showDeleteDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.red, // Use red color for delete button
+                          ),
+                          child: Text("Delete Details"),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -317,6 +337,79 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
         );
       },
     );
+  }
+
+  Future<void> _showDeleteDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete Apartment'),
+          content: Text('Are you sure you want to delete this apartment?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _deleteFirestoreEntry();
+                });
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  void _deleteFirestoreEntry() async {
+    var collection = " ";
+    if (widget.property['propertyId'].contains('property')) {
+      collection = "properties";
+    } else if (widget.property['propertyId'].contains('apartment')) {
+      collection = "apartments";
+    }
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('apartments')
+        .doc(widget.property['propertyId'])
+        .collection('units')
+        .get()
+        .then((querySnapshot) {
+      querySnapshot.docs.forEach((doc) {
+        doc.reference.delete();
+      });
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection(collection)
+        .doc(widget.property['propertyId'])
+        .delete()
+        .then((_) {
+      print("Firestore delete successful");
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => AuthGate(),
+        ),
+            (route) => false,
+      );
+    }).catchError((error) {
+      // Handle errors here
+      print("Error deleting Firestore entry: $error");
+    });
   }
 
   Future<void> _showEditDialog(BuildContext context) async {
