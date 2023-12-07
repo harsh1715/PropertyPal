@@ -23,9 +23,9 @@ class UnitDetailsPage extends StatelessWidget {
         .collection('units');
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Unit Details'),
-      ),
+      // appBar: AppBar(
+      //   title: Text('Unit Details'),
+      // ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: unitRef.doc(unitId).snapshots(),
         builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {

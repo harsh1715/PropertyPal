@@ -1,23 +1,36 @@
 import 'package:flutter/material.dart';
-import 'DetailsTab.dart';
-import 'BalanceTab.dart';
-import 'InvoicesTab.dart';
-import 'PaymentsTab.dart';
+import 'package:propertypal/screens/properties/unitdetails.dart';
+import '../DetailsTab.dart';
+import '../BalanceTab.dart';
+import '../InvoicesTab.dart';
+import '../PaymentsTab.dart';
 
-import '../../widgets/navbar.dart';
+import '../../../widgets/navbar.dart';
 
-class RemindersDetails extends StatelessWidget {
+class UnitDetails extends StatelessWidget {
 
-  final Map<String, dynamic> propertyInfo;
+  //final Map<String, dynamic> propertyInfo;
 
-  const RemindersDetails({Key? key, required this.propertyInfo}) : super(key: key);
+  final String userId; // Add the user ID if needed
+  final String apartmentId; // Add the apartment ID if needed
+  final String unitId;
+
+  const UnitDetails(
+      {
+        Key? key,
+        // required this.propertyInfo,
+        required this.userId,
+        required this.apartmentId,
+        required this.unitId,
+      }
+  ) : super(key: key);
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(propertyInfo['tenantName']),
+        title: Text("Unit Details"),
       ),
       body: DefaultTabController(
         length: 4,
@@ -38,7 +51,7 @@ class RemindersDetails extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  DetailsTab(property: propertyInfo),
+                  UnitDetailsPage(userId: userId, apartmentId: apartmentId, unitId: unitId),
                   BalanceTab(),
                   InvoicesTab(),
                   PaymentsTab(),

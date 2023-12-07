@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:propertypal/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
 
-import '../reminder/reminder_details.dart';
+import '../reminder/details/property_details.dart';
 
 
 class HouseWidget extends StatelessWidget {

@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/properties/unitdetails.dart';
-import '../reminder/reminder_details.dart';
+import '../reminder/details/property_details.dart';
+import '../reminder/details/unit_details.dart';
 import 'apartmentDetailsOutline.dart';
 import '../welcome_screen.dart';
 
@@ -94,7 +95,7 @@ class Apartments extends StatelessWidget {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => RemindersDetails(propertyInfo: apartment),
+                    builder: (context) => ApartmentDetails(propertyInfo: apartment),
                   ),
                 );
                 print("Container tapped: ${apartment['propertyName']}");
@@ -187,7 +188,7 @@ class Apartments extends StatelessWidget {
                                   print("Unit tapped: ${unit['unitId']}");
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (context) => UnitDetailsPage(
+                                      builder: (context) => UnitDetails(
                                         userId: userId!,
                                         apartmentId: apartmentId,
                                         unitId: unit['unitId'],

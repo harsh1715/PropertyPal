@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../login_screens.dart';
-import 'reminder_details.dart';
+import 'details/property_details.dart';
 
 class ReminderScreen extends StatefulWidget {
   ReminderScreen({Key? key});
