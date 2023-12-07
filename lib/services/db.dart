@@ -124,6 +124,31 @@ class Db{
 
     String newUnitId = 'unit${unitCount + 1}';
 
+    DocumentReference newPropertyRef = unitsCollection.doc(newUnitId);
+
+    CollectionReference monthlyCollection = newPropertyRef.collection('monthlyDetails');
+
+    Map<String, dynamic> createMonthlyData() {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+
+      Map<String, dynamic> monthlyData = {};
+
+      for (String month in months) {
+        monthlyData[month] = {
+          'rent': "",
+          'paid': false,
+        };
+      }
+
+      return monthlyData;
+    }
+
+    Map<String, dynamic> monthlyData = createMonthlyData();
+
+
     Map<String, dynamic> newData = {
       ...data,
       'unitId': newUnitId,
@@ -136,8 +161,13 @@ class Db{
         .catchError((error) {
       print("Failed to add unit: $error");
     });
-  }
 
+
+    monthlyData.forEach((month, data) {
+      monthlyCollection.doc(month).set(data);
+    });
+
+  }
 
 
   Future<void> editProperty(String propertyId, Map<String, dynamic> newData) async {
