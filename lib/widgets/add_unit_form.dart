@@ -16,6 +16,7 @@ class AddUnitForm extends StatefulWidget {
 }
 
 class _AddUnitFormState extends State<AddUnitForm> {
+  final _unitName = TextEditingController();
   final _tenantName = TextEditingController();
   final _tenantPhone = TextEditingController();
   final _tenantEmail = TextEditingController();
@@ -40,6 +41,7 @@ class _AddUnitFormState extends State<AddUnitForm> {
       });
 
       var data = {
+        'unitName': _unitName.text,
         'tenantName': _tenantName.text,
         'tenantPhone': _tenantPhone.text,
         'tenantEmail': _tenantEmail.text,
@@ -135,6 +137,13 @@ class _AddUnitFormState extends State<AddUnitForm> {
             child: Column(
               children: [
 
+                TextFormField(
+                  controller: _unitName,
+                  validator: appValidator.isEmptyCheck,
+                  decoration: InputDecoration(
+                      labelText: 'Unit\'s name'
+                  ),
+                ),
                 TextFormField(
                   controller: _tenantName,
                   validator: appValidator.isEmptyCheck,
