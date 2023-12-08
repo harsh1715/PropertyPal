@@ -59,7 +59,7 @@ class _AddPropertyFormState extends State<AddPropertyForm> {
 
   @override
   Widget build(BuildContext context) {
-    _updateEndDate(); // Call it here
+    _updateEndDate();
 
     _notifications.init();
     return Scaffold(

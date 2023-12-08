@@ -182,87 +182,51 @@ class Db{
     });
   }
 
-  Future<void> editApartment(String collection, String documentId, Map<String, dynamic> newData) async {
+  Future<void> editApartment(String apartmentId, Map<String, dynamic> newData) async {
     final userID = FirebaseAuth.instance.currentUser!.uid;
-    DocumentReference docRef = users.doc(userID).collection(collection).doc(documentId);
+    DocumentReference docRef = users.doc(userID).collection('apartments').doc(apartmentId);
 
     await docRef
         .update(newData)
-        .then((value) => print("$collection Updated"))
+        .then((value) => print("$apartmentId Updated"))
         .catchError((error) {
-      print("Failed to update $collection: $error");
+      print("Failed to update $apartmentId: $error");
     });
   }
 
-  // Future<void> editUnit(String apartmentId, String unitId, Map<String, dynamic> newData) async {
-  //   final userID = FirebaseAuth.instance.currentUser!.uid;
-  //   DocumentReference userDocRef = users.doc(userID);
-  //   CollectionReference apartmentsCollection = userDocRef.collection('apartments');
-  //   DocumentReference apartmentDocRef = apartmentsCollection.doc(apartmentId);
-  //
-  //   DocumentSnapshot apartmentSnapshot = await apartmentDocRef.get();
-  //   if (!apartmentSnapshot.exists) {
-  //     print("Apartment with ID $apartmentId does not exist");
-  //     return;
-  //   }
-  //
-  //   CollectionReference unitsCollection = apartmentDocRef.collection('units');
-  //   DocumentReference unitDocRef = unitsCollection.doc(unitId);
-  //
-  //   await unitDocRef
-  //       .update(newData)
-  //       .then((value) => print("Unit Updated"))
-  //       .catchError((error) {
-  //     print("Failed to update unit: $error");
-  //   });
-  // }
 
-  Future<DocumentSnapshot> getUnitData(String apartmentId, String? unitId) async {
+  Future<Map<String, dynamic>> getUnitDetails(String apartmentId, String unitId) async {
     final userID = FirebaseAuth.instance.currentUser!.uid;
     DocumentReference userDocRef = users.doc(userID);
     CollectionReference apartmentsCollection = userDocRef.collection('apartments');
     DocumentReference apartmentDocRef = apartmentsCollection.doc(apartmentId);
-
-    DocumentSnapshot apartmentSnapshot = await apartmentDocRef.get();
-    if (!apartmentSnapshot.exists) {
-      print("Apartment with ID $apartmentId does not exist");
-      return Future.error("Apartment not found");
-    }
-
     CollectionReference unitsCollection = apartmentDocRef.collection('units');
-
-    if (unitId == null) {
-      print("Unit ID is null");
-      return Future.error("Unit ID is null");
-    }
-
     DocumentReference unitDocRef = unitsCollection.doc(unitId);
 
     DocumentSnapshot unitSnapshot = await unitDocRef.get();
-    if (!unitSnapshot.exists) {
-      print("Unit with ID $unitId does not exist");
-      return Future.error("Unit not found");
-    }
 
-    return unitSnapshot;
+    if (unitSnapshot.exists) {
+      return unitSnapshot.data() as Map<String, dynamic>;
+    } else {
+      // Handle the case when the unit doesn't exist
+      return {};
+    }
   }
 
-
-
-  Future<void> editUnit(String propertyId, String unitId, Map<String, dynamic> newData) async {
+  Future<void> editUnit(String apartmentId, String unitId, Map<String, dynamic> data) async {
     final userID = FirebaseAuth.instance.currentUser!.uid;
     DocumentReference userDocRef = users.doc(userID);
     CollectionReference apartmentsCollection = userDocRef.collection('apartments');
-    DocumentReference apartmentDocRef = apartmentsCollection.doc(propertyId);
-    DocumentReference unitDocRef = apartmentDocRef.collection('units').doc(unitId);
+    DocumentReference apartmentDocRef = apartmentsCollection.doc(apartmentId);
+    CollectionReference unitsCollection = apartmentDocRef.collection('units');
+    DocumentReference unitDocRef = unitsCollection.doc(unitId);
 
     await unitDocRef
-        .update(newData)
+        .update(data)
         .then((value) => print("Unit Updated"))
         .catchError((error) {
       print("Failed to update unit: $error");
     });
   }
-
 
 }

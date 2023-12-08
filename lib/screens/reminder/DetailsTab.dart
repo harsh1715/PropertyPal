@@ -610,12 +610,8 @@ class _DetailsTabState extends State<DetailsTab> {
         .then((_) {
       print("Firestore delete successful");
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => AuthGate(),
-        ),
-            (route) => false,
-      );
+      Navigator.of(context).pop();
+
     }).catchError((error) {
       print("Error deleting Firestore entry: $error");
     });

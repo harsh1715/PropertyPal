@@ -27,12 +27,15 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
   var isLoader = false;
   var appValidator = AppValidator();
   String _propertyId = '';
+  String _apartmentId = '';
+
   @override
   void initState() {
     super.initState();
     if (widget.initialData != null) {
       _propertyName.text = widget.initialData!['propertyName'];
       _propertyAddress.text = widget.initialData!['propertyAddress'];
+      _apartmentId = widget.initialData!['propertyId'];
     }
   }
 
@@ -68,13 +71,14 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
             builder: (context) => AddUnitForm(propertyId: _propertyId),
           ),
         );
+
       } else {
         var data = {
           'propertyName': _propertyName.text,
           'propertyAddress': _propertyAddress.text,
         };
 
-        await db.editApartment('apartments', widget.initialData!['propertyId'], data);
+        await db.editApartment(widget.initialData!['propertyId'], data);
         setState(() {
           isLoader = false;
         });
@@ -142,7 +146,6 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
                 ),
                 ElevatedButton(
                   onPressed: (){
-                    //isLoader ? print("Loading") : _submitForm();
                     if (isLoader == false){
                       _submitForm();
                     }

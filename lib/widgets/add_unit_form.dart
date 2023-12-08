@@ -9,7 +9,10 @@ import 'auth_gate.dart';
 
 class AddUnitForm extends StatefulWidget {
   final String propertyId;
-  const AddUnitForm({super.key, required this.propertyId,});
+  final String? unitId;
+  final Map<String, dynamic>? initialData;
+
+  const AddUnitForm({Key? key, required this.propertyId, this.unitId, this.initialData}) : super(key: key);
 
   @override
   State<AddUnitForm> createState() => _AddUnitFormState();
@@ -34,8 +37,27 @@ class _AddUnitFormState extends State<AddUnitForm> {
   var isLoader = false;
   var appValidator = AppValidator();
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.unitId != null) {
+      _loadUnitDetails();
+    }
+  }
+
+  void _loadUnitDetails() async {
+    var unitDetails = await db.getUnitDetails(widget.propertyId, widget.unitId!);
+    _unitName.text = unitDetails['unitName'];
+    _tenantName.text = unitDetails['tenantName'];
+    _tenantPhone.text = unitDetails['tenantPhone'];
+    _tenantEmail.text = unitDetails['tenantEmail'];
+    _tenantRent.text = unitDetails['tenantRent'];
+    _startDateController.text = unitDetails['startDate'];
+    _selectedDuration = unitDetails['duration'];
+  }
+
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()){
+    if (_formKey.currentState!.validate()) {
       setState(() {
         isLoader = true;
       });
@@ -47,14 +69,21 @@ class _AddUnitFormState extends State<AddUnitForm> {
         'tenantEmail': _tenantEmail.text,
         'tenantRent': _tenantRent.text,
         'startDate': _startDateController.text,
-        'endDate': _calculateEndDate(),
+        'endDate': _calculateEndDate(_startDateController.text, _selectedDuration),
       };
-      await db.addUnit(widget.propertyId, data);
+
+      if (widget.unitId != null) {
+        await db.editUnit(widget.propertyId, widget.unitId!, data);
+      } else {
+        await db.addUnit(widget.propertyId, data);
+      }
+
       setState(() {
         isLoader = false;
       });
+
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => AuthGate(),),
+        MaterialPageRoute(builder: (context) => AuthGate()),
             (route) => false,
       );
     }
@@ -62,27 +91,7 @@ class _AddUnitFormState extends State<AddUnitForm> {
 
   DateTime? _startDate;
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime currentDate = DateTime.now();
-    final DateTime lastDate = DateTime(2040, 12, 31);
 
-    DateTime initialDate = currentDate;
-
-
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: initialDate,
-      firstDate: DateTime(2020),
-      lastDate: lastDate,
-    );
-
-    if (picked != null) {
-      setState(() {
-        _startDate = picked;
-        _startDateController.text = DateFormat.yMMMd().format(picked);
-      });
-    }
-  }
 
   Future<void> _selectDuration(BuildContext context) async {
     final int? selected = await showDialog<int>(
@@ -110,24 +119,32 @@ class _AddUnitFormState extends State<AddUnitForm> {
     if (selected != null) {
       setState(() {
         _selectedDuration = selected;
+        _updateEndDate();
       });
     }
   }
-  String _calculateEndDate() {
-    if (_startDate != null && _selectedDuration != null) {
+
+  String _calculateEndDate(String? startDate, int? duration) {
+    if (startDate != null && duration != null) {
       final daysInMonth = 30.44;
-      final endDate = _startDate!.add(Duration(days: (_selectedDuration! * daysInMonth).round()));
+      final DateTime startDateTime = DateFormat.yMMMd().parse(startDate);
+      final endDate = startDateTime.add(Duration(days: (duration * daysInMonth).round()));
       return DateFormat.yMMMd().format(endDate);
+    } else if (widget.initialData != null) {
+      return widget.initialData!['endDate'];
     } else {
       return '';
     }
   }
+
+
   @override
   Widget build(BuildContext context) {
+    _updateEndDate();
     _notifications.init();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Apartment Unit'),
+        title: Text(widget.unitId != null ? 'Edit Apartment Unit' : 'Add Apartment Unit'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -210,17 +227,16 @@ class _AddUnitFormState extends State<AddUnitForm> {
                   height: 12,
                 ),
                 ElevatedButton(
-                    onPressed: (){
-                      //isLoader ? print("Loading") : _submitForm();
-                      if (isLoader == false){
-                        _notificationNow();
-                        _notificationLater();
-                        _submitForm();
-                      }
-                    },
-                    child:
-                    isLoader ? Center(child: CircularProgressIndicator()):
-                    Text("Add Apartment Unit")
+                  onPressed: (){
+                    if (isLoader == false){
+                      _notificationNow();
+                      _notificationLater();
+                      _submitForm();
+                    }
+                  },
+                  child: isLoader
+                      ? Center(child: CircularProgressIndicator())
+                      : Text(widget.unitId != null ? 'Save Changes' : 'Add Apartment Unit'),
                 ),
               ],
             ),
@@ -230,6 +246,32 @@ class _AddUnitFormState extends State<AddUnitForm> {
     );
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime currentDate = DateTime.now();
+    final DateTime lastDate = DateTime(2040, 12, 31);
+
+    DateTime initialDate = currentDate;
+
+
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2020),
+      lastDate: lastDate,
+    );
+
+    if (picked != null) {
+      setState(() {
+        _startDate = picked;
+        _startDateController.text = DateFormat.yMMMd().format(picked);
+        _updateEndDate();
+      });
+    }
+  }
+
+  void _updateEndDate() {
+    _endDateController.text = _calculateEndDate(_startDateController.text, _selectedDuration);
+  }
 
   void _notificationNow() async{
     _notifications.sendNotificationNow("${_tenantName.text}\'s Apartment Added",

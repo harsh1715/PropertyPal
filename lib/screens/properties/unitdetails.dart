@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../widgets/add_unit_form.dart';
+
 class UnitDetailsPage extends StatelessWidget {
   final String userId; // Add the user ID if needed
   final String apartmentId; // Add the apartment ID if needed
@@ -28,7 +30,8 @@ class UnitDetailsPage extends StatelessWidget {
       // ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: unitRef.doc(unitId).snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        builder: (BuildContext context,
+            AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text('Error: ${snapshot.error}'),
@@ -380,14 +383,34 @@ class UnitDetailsPage extends StatelessWidget {
                   ],
                 ),
                 // Edit button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  // Adjust the alignment as needed
                   children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _showEditDialog(context);
-                      },
-                      child: Text("Edit Details"),
+                    SizedBox(
+                      width: 200,
+                      child: Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _showEditForm(context);
+                          },
+                          child: Text("Edit Unit"),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 200,
+                      child: Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            _showDeleteDialog(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.red,
+                          ),
+                          child: Text("Delete Unit"),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -399,32 +422,26 @@ class UnitDetailsPage extends StatelessWidget {
     );
   }
 
-  Future<void> _showEditDialog(BuildContext context) async {
+  Future<void> _showEditForm(BuildContext context) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            AddUnitForm(
+              propertyId: apartmentId,
+              unitId: unitId,
+            ),
+      ),
+    );
+  }
+
+  Future<void> _showDeleteDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Details'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                // TextFormField(
-                //   controller: _nameController,
-                //   decoration: InputDecoration(labelText: 'Name'),
-                // ),
-                // TextFormField(
-                //   controller: _phoneController,
-                //   keyboardType: TextInputType.phone,
-                //   decoration: InputDecoration(labelText: 'Phone'),
-                // ),
-                // TextFormField(
-                //   controller: _emailController,
-                //   keyboardType: TextInputType.emailAddress,
-                //   decoration: InputDecoration(labelText: 'Email'),
-                // ),
-              ],
-            ),
-          ),
+          title: Text('Delete Unit'),
+          content: Text('Are You Sure You Want To Delete This Unit?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -434,12 +451,12 @@ class UnitDetailsPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                // setState(() {
-                //   _updateFirestore();
-                // });
-                Navigator.of(context).pop();
+                _deleteFirestoreEntry(context);
               },
-              child: Text('Save'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red,
+              ),
+              child: Text('Delete'),
             ),
           ],
         );
@@ -447,16 +464,24 @@ class UnitDetailsPage extends StatelessWidget {
     );
   }
 
-// void _updateFirestore() {
-//   FirebaseFirestore.instance.collection('users').doc(userId).collection('apartments').doc(apartmentId).collection('units').doc(unitId).update({
-//     'tenantName': _nameController.text,
-//     'tenantPhone': _phoneController.text,
-//     'tenantEmail': _emailController.text,
-//   }).then((_) {
-//     print("Firestore update successful");
-//   }).catchError((error) {
-//     // Handle errors here
-//     print("Error updating Firestore: $error");
-//   });
-// }
+  void _deleteFirestoreEntry(BuildContext context) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('apartments')
+        .doc(apartmentId)
+        .collection('units')
+        .doc(unitId)
+        .delete()
+        .then((_) {
+      print("Firestore delete successful");
+
+      Navigator.of(context).pop();
+    })
+        .catchError((error) {
+      print("Error deleting Firestore entry: $error");
+    });
+  }
+
 }
+
