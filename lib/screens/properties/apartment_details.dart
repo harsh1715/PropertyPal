@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:propertypal/widgets/auth_gate.dart';
+import '../../widgets/add_apartment_form.dart';
 import '../../widgets/add_unit_form.dart';
 
 class ApartmentDetailsTab extends StatefulWidget {
@@ -308,7 +309,7 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                       child: Expanded(
                         child: ElevatedButton(
                           onPressed: () {
-                            _showEditDialog(context);
+                            _showEditForm(context);
                           },
                           child: Text("Edit Details"),
                         ),
@@ -338,14 +339,21 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
       },
     );
   }
-
+  void _showEditForm(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddApartmentForm(initialData: widget.property),
+      ),
+    );
+  }
   Future<void> _showDeleteDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Delete Apartment'),
-          content: Text('Are you sure you want to delete this apartment?'),
+          content: Text('Are You Sure You Want To Delete this Apartment? All Associated Units Will Be Deleted.'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -410,78 +418,7 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
       // Handle errors here
       print("Error deleting Firestore entry: $error");
     });
+
   }
 
-  Future<void> _showEditDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Edit Details'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _propertyNameController,
-                  decoration: InputDecoration(labelText: 'Property Name'),
-                ),
-                TextFormField(
-                  controller: _propertyAddressController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(labelText: 'Property Address'),
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _updateFirestore();
-                });
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => AuthGate(),
-                  ),
-                      (route) => false,
-                );
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _updateFirestore() {
-    var collection = " ";
-    if (widget.property['propertyId'].contains('property')) {
-      collection = "properties";
-    } else if (widget.property['propertyId'].contains('apartment')) {
-      collection = "apartments";
-    }
-    FirebaseFirestore.instance.collection('users').doc(userId).collection(collection).doc(widget.property['propertyId']).update({
-      'propertyName': _propertyNameController.text,
-      'propertyAddress': _propertyAddressController.text,
-    }).then((_) {
-      print("Firestore update successful");
-    }).catchError((error) {
-      // Handle errors here
-      print("Error updating Firestore: $error");
-    });
-  }
-
-  @override
-  void dispose() {
-    _propertyNameController.dispose();
-    _propertyAddressController.dispose();
-    super.dispose();
-  }
 }

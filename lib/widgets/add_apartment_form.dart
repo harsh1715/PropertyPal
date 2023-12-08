@@ -37,7 +37,7 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()){
+    if (_formKey.currentState!.validate()) {
       setState(() {
         isLoader = true;
       });
@@ -47,31 +47,49 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
       DocumentReference userDocRef = users.doc(userID);
       CollectionReference additionalCollection = userDocRef.collection('apartments');
 
-      QuerySnapshot querySnapshot = await additionalCollection.get();
-      int propertyCount = querySnapshot.docs.length;
+      if (widget.initialData == null) {
+        QuerySnapshot querySnapshot = await additionalCollection.get();
+        int propertyCount = querySnapshot.docs.length;
 
-      _propertyId = 'apartment${propertyCount + 1}';
-      print("$_propertyId + $propertyCount");
-      var data = {
-        'propertyName': _propertyName.text,
-        'propertyAddress': _propertyAddress.text,
-      };
-      await db.addApartment(data);
-      setState(() {
-        isLoader = false;
-      });
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => AddUnitForm(propertyId: _propertyId),
-        ),
-      );
+        _propertyId = 'apartment${propertyCount + 1}';
+        print("$_propertyId + $propertyCount");
+
+        var data = {
+          'propertyName': _propertyName.text,
+          'propertyAddress': _propertyAddress.text,
+        };
+        await db.addApartment(data);
+        setState(() {
+          isLoader = false;
+        });
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => AddUnitForm(propertyId: _propertyId),
+          ),
+        );
+      } else {
+        var data = {
+          'propertyName': _propertyName.text,
+          'propertyAddress': _propertyAddress.text,
+        };
+
+        await db.editApartment('apartments', widget.initialData!['propertyId'], data);
+        setState(() {
+          isLoader = false;
+        });
+
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Property'),
+        title: Text(widget.initialData != null ? 'Edit Apartment' : 'Add Apartment'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -123,15 +141,15 @@ class _AddApartmentFormState extends State<AddApartmentForm> {
                   height: 12,
                 ),
                 ElevatedButton(
-                    onPressed: (){
-                      //isLoader ? print("Loading") : _submitForm();
-                      if (isLoader == false){
-                        _submitForm();
-                      }
-                    },
-                    child:
-                    isLoader ? Center(child: CircularProgressIndicator()):
-                    Text("Add Apartment")
+                  onPressed: (){
+                    //isLoader ? print("Loading") : _submitForm();
+                    if (isLoader == false){
+                      _submitForm();
+                    }
+                  },
+                  child:
+                  isLoader ? Center(child: CircularProgressIndicator()):
+                  Text(widget.initialData != null ? 'Save Changes' : 'Add Apartment'),
                 ),
               ],
             ),

@@ -182,4 +182,87 @@ class Db{
     });
   }
 
+  Future<void> editApartment(String collection, String documentId, Map<String, dynamic> newData) async {
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference docRef = users.doc(userID).collection(collection).doc(documentId);
+
+    await docRef
+        .update(newData)
+        .then((value) => print("$collection Updated"))
+        .catchError((error) {
+      print("Failed to update $collection: $error");
+    });
+  }
+
+  // Future<void> editUnit(String apartmentId, String unitId, Map<String, dynamic> newData) async {
+  //   final userID = FirebaseAuth.instance.currentUser!.uid;
+  //   DocumentReference userDocRef = users.doc(userID);
+  //   CollectionReference apartmentsCollection = userDocRef.collection('apartments');
+  //   DocumentReference apartmentDocRef = apartmentsCollection.doc(apartmentId);
+  //
+  //   DocumentSnapshot apartmentSnapshot = await apartmentDocRef.get();
+  //   if (!apartmentSnapshot.exists) {
+  //     print("Apartment with ID $apartmentId does not exist");
+  //     return;
+  //   }
+  //
+  //   CollectionReference unitsCollection = apartmentDocRef.collection('units');
+  //   DocumentReference unitDocRef = unitsCollection.doc(unitId);
+  //
+  //   await unitDocRef
+  //       .update(newData)
+  //       .then((value) => print("Unit Updated"))
+  //       .catchError((error) {
+  //     print("Failed to update unit: $error");
+  //   });
+  // }
+
+  Future<DocumentSnapshot> getUnitData(String apartmentId, String? unitId) async {
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDocRef = users.doc(userID);
+    CollectionReference apartmentsCollection = userDocRef.collection('apartments');
+    DocumentReference apartmentDocRef = apartmentsCollection.doc(apartmentId);
+
+    DocumentSnapshot apartmentSnapshot = await apartmentDocRef.get();
+    if (!apartmentSnapshot.exists) {
+      print("Apartment with ID $apartmentId does not exist");
+      return Future.error("Apartment not found");
+    }
+
+    CollectionReference unitsCollection = apartmentDocRef.collection('units');
+
+    if (unitId == null) {
+      print("Unit ID is null");
+      return Future.error("Unit ID is null");
+    }
+
+    DocumentReference unitDocRef = unitsCollection.doc(unitId);
+
+    DocumentSnapshot unitSnapshot = await unitDocRef.get();
+    if (!unitSnapshot.exists) {
+      print("Unit with ID $unitId does not exist");
+      return Future.error("Unit not found");
+    }
+
+    return unitSnapshot;
+  }
+
+
+
+  Future<void> editUnit(String propertyId, String unitId, Map<String, dynamic> newData) async {
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference userDocRef = users.doc(userID);
+    CollectionReference apartmentsCollection = userDocRef.collection('apartments');
+    DocumentReference apartmentDocRef = apartmentsCollection.doc(propertyId);
+    DocumentReference unitDocRef = apartmentDocRef.collection('units').doc(unitId);
+
+    await unitDocRef
+        .update(newData)
+        .then((value) => print("Unit Updated"))
+        .catchError((error) {
+      print("Failed to update unit: $error");
+    });
+  }
+
+
 }
