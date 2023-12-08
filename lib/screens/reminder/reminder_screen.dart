@@ -160,7 +160,6 @@ class _ReminderScreenState extends State<ReminderScreen> {
   );
 }
 
-
   String _getCurrentMonth() {
     DateTime now = DateTime.now();
     String currentMonth = DateFormat('MMMM').format(now);

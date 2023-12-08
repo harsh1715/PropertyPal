@@ -235,7 +235,6 @@ class _AddUnitFormState extends State<AddUnitForm> {
     _notifications.sendNotificationNow("${_tenantName.text}\'s Apartment Added",
         "We will notify you 5 days before the end date.", _startDateController.text);
   }
-
   void _notificationLater() async {
     final daysInMonth = 30.44;
     String currentMonth = DateFormat('MMMM').format(DateTime.now());
