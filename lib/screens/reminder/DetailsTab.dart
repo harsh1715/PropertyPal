@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:propertypal/widgets/auth_gate.dart';
 
 import '../../widgets/add_property_form.dart';
 
@@ -198,7 +197,6 @@ class _DetailsTabState extends State<DetailsTab> {
                       ),
                     ],
                   ),
-                  // Email Section
                   Row(
                     children: [
                       Expanded(

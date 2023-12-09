@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../widgets/add_apartment_form.dart';
 import '../widgets/add_property_form.dart';
-import 'login_screens.dart';
 
-import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({Key? key});

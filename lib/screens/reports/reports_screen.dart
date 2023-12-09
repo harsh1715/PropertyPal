@@ -57,7 +57,7 @@ class _ReportScreenState extends State<ReportScreen> {
               setState(() {
                 propertyIds = id;
                 propertyNames =
-                    names; // Update propertyNames with fetched names
+                    names;
               });
 
               openPropertyDropdown();
@@ -77,18 +77,16 @@ class _ReportScreenState extends State<ReportScreen> {
   void openPropertyDropdown() {
     if (propertyNames.isNotEmpty) {
       FocusScope.of(context).requestFocus(
-          FocusNode()); // Close keyboard if open
+          FocusNode());
       showMenu<String>(
         context: context,
         position: RelativeRect.fromLTRB(0, 0, 0, 0),
         items: propertyIds.map((propertyid) {
-          // Find the index of the property ID in the propertyids list
           int index = propertyIds.indexOf(propertyid);
-          // Use the corresponding property name
           String propertyName = propertyNames[index];
           return PopupMenuItem<String>(
             value: propertyid,
-            child: Text('$propertyid - $propertyName'), // Display property name
+            child: Text('$propertyid - $propertyName'),
           );
         }).toList(),
       ).then((value) {
@@ -98,7 +96,7 @@ class _ReportScreenState extends State<ReportScreen> {
         });
       });
     } else {
-      retrieveUserProperties(); // Fetch properties if the list is empty
+      retrieveUserProperties();
     }
   }
 
@@ -126,7 +124,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
               setState(() {
                 totalPropertyIncomeDisplay = tenantRent
-                    .toString(); // Use totalPropertyIncomeDisplay for property income
+                    .toString();
               });
             } else {
               print("Property document does not exist");
@@ -173,7 +171,7 @@ class _ReportScreenState extends State<ReportScreen> {
               setState(() {
                 apartmentIds = id;
                 apartmentNames =
-                    names; // Update apartmentNames with fetched names
+                    names;
               });
 
               _openApartmentDropdown();
@@ -193,19 +191,17 @@ class _ReportScreenState extends State<ReportScreen> {
   void _openApartmentDropdown() {
     if (apartmentNames.isNotEmpty) {
       FocusScope.of(context).requestFocus(
-          FocusNode()); // Close keyboard if open
+          FocusNode());
       showMenu<String>(
         context: context,
         position: RelativeRect.fromLTRB(0, 0, 0, 0),
         items: apartmentIds.map((apartmentId) {
-          // Find the index of the apartment ID in the apartmentIds list
           int index = apartmentIds.indexOf(apartmentId);
-          // Use the corresponding apartment name
           String apartmentName = apartmentNames[index];
           return PopupMenuItem<String>(
             value: apartmentId,
             child: Text(
-                '$apartmentId - $apartmentName'), // Display apartment name
+                '$apartmentId - $apartmentName'),
           );
         }).toList(),
       ).then((value) {
@@ -215,7 +211,7 @@ class _ReportScreenState extends State<ReportScreen> {
         });
       });
     } else {
-      _retrieveUserApartments(); // Fetch apartments if the list is empty
+      _retrieveUserApartments();
     }
   }
 
@@ -234,29 +230,28 @@ class _ReportScreenState extends State<ReportScreen> {
               .doc(selectedApartmentId!)
               .collection('units');
 
-          List<int> incomes = []; // List to store total incomes
+          List<int> incomes = [];
           unitsCollection.get().then((QuerySnapshot unitsSnapshot) {
             unitsSnapshot.docs.forEach((QueryDocumentSnapshot unitSnapshot) {
               var unitData = unitSnapshot.data();
               if (unitData != null && unitData is Map<String, dynamic>) {
-                // Check if 'tenantRent' exists and is a number
                 if (unitData.containsKey('tenantRent')) {
                   String? rentString = unitData['tenantRent'];
                   int? rent = int.tryParse(rentString ?? '');
                   if (rent != null) {
                     setState(() {
-                      incomes.add(rent); // Add the parsed income to the list
+                      incomes.add(rent);
                     });
                   }
                 }
               }
             });
-            // Calculate total income from the list of incomes
+
             int totalIncome = incomes.fold<int>(
                 0, (prev, element) => prev + element);
             setState(() {
               totalApartmentIncomeDisplay =
-                  totalIncome.toString(); // Update the display
+                  totalIncome.toString();
             });
           });
         } else {
@@ -277,7 +272,7 @@ class _ReportScreenState extends State<ReportScreen> {
           InkWell(
             onTap: openPropertyDropdown,
             child: InputDecorator(
-              decoration: InputDecoration( // Add decoration here
+              decoration: InputDecoration(
                 labelText: 'Select Property',
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -396,8 +391,8 @@ class _ReportScreenState extends State<ReportScreen> {
             Expanded(
               child: TabBarView(
                 children: [
-                  _buildPropertyTab(), // Content for the first tab
-                  _buildApartmentTab(), // Content for the second tab
+                  _buildPropertyTab(),
+                  _buildApartmentTab(),
                 ],
               ),
             ),

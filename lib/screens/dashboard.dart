@@ -5,7 +5,6 @@ import 'package:propertypal/screens/settings/settings_screen.dart';
 import 'package:propertypal/widgets/navbar.dart';
 import 'package:propertypal/screens/reports/reports_screen.dart';
 
-import 'login_screens.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});

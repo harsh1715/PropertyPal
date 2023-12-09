@@ -34,7 +34,7 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
         .collection('users')
         .doc(userId)
         .collection('apartments')
-        .doc(widget.property['propertyId']) // Use the dynamic property ID
+        .doc(widget.property['propertyId'])
         .collection('units')
         .snapshots();
 
@@ -48,11 +48,6 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
         if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         }
-
-        //test case to check if unit has not been added
-        // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-        //   return Text('No units available');
-        // }
 
         return Container(
           decoration: BoxDecoration(
@@ -239,7 +234,6 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                   ],
                 ),
 
-                // Use a ListView.builder for dynamic rendering of units and tenant names
                 ListView.builder(
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
@@ -300,9 +294,8 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                   },
                 ),
 
-                // Edit button
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Adjust the alignment as needed
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     SizedBox(
                       width: 200,
@@ -324,7 +317,7 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
                             _showDeleteDialog(context);
                           },
                           style: ElevatedButton.styleFrom(
-                            primary: Colors.red, // Use red color for delete button
+                            primary: Colors.red,
                           ),
                           child: Text("Delete Details"),
                         ),
@@ -415,7 +408,6 @@ class _DetailsTabState extends State<ApartmentDetailsTab> {
             (route) => false,
       );
     }).catchError((error) {
-      // Handle errors here
       print("Error deleting Firestore entry: $error");
     });
 

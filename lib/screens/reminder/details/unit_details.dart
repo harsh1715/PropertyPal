@@ -9,7 +9,6 @@ import '../PaymentsTab.dart';
 
 class UnitDetails extends StatelessWidget {
 
-  //final Map<String, dynamic> propertyInfo;
   final Map<dynamic, dynamic> unitInfo;
   final String userId;
   final String apartmentId;
@@ -18,7 +17,6 @@ class UnitDetails extends StatelessWidget {
   const UnitDetails(
       {
         Key? key,
-        // required this.propertyInfo,
         required this.userId,
         required this.apartmentId,
         required this.unitId,

@@ -37,7 +37,6 @@ class _BalanceTabState extends State<BalanceTabApartment> {
       ),
       child: Column(
         children: [
-          // Property Name
           Row(
             children: [
               Expanded(
@@ -87,7 +86,6 @@ class _BalanceTabState extends State<BalanceTabApartment> {
               ),
             ],
           ),
-          // Phone Section
           Row(
             children: [
               Expanded(

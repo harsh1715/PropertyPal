@@ -47,6 +47,14 @@ class _ReminderScreenState extends State<ReminderScreen> {
       unitIds.insertAll(0, List.filled(lengthDifference, ''));
     }
 
+    isCheckedList = List.generate(combinedIds.length, (index) => false);
+
+    String currentMonth = _getCurrentMonth();
+    for (int i = 0; i < combinedIds.length; i++) {
+      bool isPaid = await _fetchPaymentStatus(combinedIds[i], unitIds[i], currentMonth);
+      isCheckedList[i] = isPaid;
+    }
+
 
     setState(() {
       propertyNames = propertyNames;
@@ -54,10 +62,44 @@ class _ReminderScreenState extends State<ReminderScreen> {
       apartmentIds = apartmentIds;
       unitIds = unitIds;
       combinedIds = combinedIds;
-      isCheckedList = List.generate(propertyNames.length, (index) => false);
+      isCheckedList = isCheckedList;
       for (String month in months) { isMonthExpanded[month] = false;}
 
     });
+  }
+
+  Future<bool> _fetchPaymentStatus(String combinedIds, String unitId, String month) async {
+    try {
+      DocumentSnapshot snapshot;
+      if (combinedIds.contains("property")) {
+        var documentReference = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userID)
+            .collection('properties')
+            .doc(combinedIds)
+            .collection('monthlyDetails')
+            .doc(month);
+
+        snapshot = await documentReference.get();
+      } else {
+        var documentReference = FirebaseFirestore.instance
+            .collection('users')
+            .doc(userID)
+            .collection('apartments')
+            .doc(combinedIds)
+            .collection('units')
+            .doc(unitId)
+            .collection('monthlyDetails')
+            .doc(month);
+
+        snapshot = await documentReference.get();
+      }
+
+      return snapshot.exists ? (snapshot.data() != null && (snapshot.data() as Map<String, dynamic>)['paid'] == true) : false;
+    } catch (e) {
+      print('Error fetching payment status: $e');
+      return false;
+    }
   }
 
   @override
@@ -105,93 +147,78 @@ class _ReminderScreenState extends State<ReminderScreen> {
     );
   }
 
-  Widget _buildPropertyTab() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Expanded(
-        child: ListView.builder(
-          itemCount: propertyNames.length,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade200,
-                      ),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 16),
-                          child: Text(
-                            propertyNames[index],
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
+  Widget _buildListItem(int index) {
+    return GestureDetector(
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade200,
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16),
+                  child: Text(
+                    propertyNames[index],
+                    style: TextStyle(
+                      color: Colors.black,
                     ),
                   ),
-                  Checkbox(
-                    value: isCheckedList[index],
-                    onChanged: (bool? value) {
-                      setState(() {
-                        isCheckedList[index] = value ?? false;
-                      });
-                      update(combinedIds[index], unitIds[index], isCheckedList[index]);
-                      print("property Names: $propertyNames");
-                      print("property Ids: $propertyIds");
-                      print("apartment Ids: $apartmentIds");
-                      print("combinedIds Ids: $combinedIds");
-                      print("unitIds Ids: $unitIds");
-                    },
-                  ),
-                ],
+                ),
               ),
-            );
-          },
-        ),
+            ),
+          ),
+          Checkbox(
+            value: isCheckedList[index],
+            onChanged: (bool? value) {
+              setState(() {
+                isCheckedList[index] = value ?? false;
+              });
+              update(combinedIds[index], unitIds[index], isCheckedList[index]);
+              print("property Names: $propertyNames");
+              print("property Ids: $propertyIds");
+              print("apartment Ids: $apartmentIds");
+              print("combinedIds Ids: $combinedIds");
+              print("unitIds Ids: $unitIds");
+            },
+          ),
+        ],
       ),
-    ],
-  );
-}
+    );
+  }
+
+  Widget _buildPropertyTab() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (int index = 0; index < propertyNames.length; index++)
+            if (!isCheckedList[index])
+              _buildListItem(index),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusTab() {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (int index = 0; index < propertyNames.length; index++)
+            if (isCheckedList[index])
+              _buildListItem(index),
+        ],
+      ),
+    );
+  }
+
 
   String _getCurrentMonth() {
     DateTime now = DateTime.now();
     String currentMonth = DateFormat('MMMM').format(now);
     return currentMonth;
-  }
-
-  Widget _buildStatusTab() {
-    return SingleChildScrollView(
-      child: ExpansionPanelList(
-        elevation: 1,
-        expandedHeaderPadding: EdgeInsets.all(0),
-        expansionCallback: (int index, bool isExpanded) {
-          setState(() {
-            // Toggle the expansion state of the panel
-            isMonthExpanded[months[index]] = !isExpanded;
-          });
-        },
-        children: months.map<ExpansionPanel>((String month) {
-          return ExpansionPanel(
-            headerBuilder: (BuildContext context, bool isExpanded) {
-              return ListTile(
-                title: Text(month),
-              );
-            },
-            body: ListTile(
-              title: Text('Details for $month'), // Add your details here
-            ),
-            isExpanded: isMonthExpanded[month] ?? false,
-          );
-        }).toList(),
-      ),
-    );
   }
 
   Future<void> update(String combinedIds, String unitId, bool value) async {
@@ -309,11 +336,8 @@ Future<PropertyData> _fetchPropertiesAndApartments() async {
       unitsSnapshot.docs.map((doc) => doc['unitId'] as String).toList();
       unitIds.addAll(propertyIDFromApartments);
 
-      // Add apartmentId and unitId to the respective lists
       apartmentIds.addAll(List.generate(propertyIDFromApartments.length, (index) => apartmentDoc.id));
     }
-
-    // Now you can access propertyIds, propertyNames, unitIds, and apartmentIds outside this function
 
     return PropertyData(
       propertyNames: propertyNames,
@@ -344,5 +368,4 @@ class PropertyData {
     required this.apartmentIds,
   });
 }
-
 

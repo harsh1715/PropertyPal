@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../widgets/add_unit_form.dart';
 
 class UnitDetailsPage extends StatelessWidget {
-  final String userId; // Add the user ID if needed
-  final String apartmentId; // Add the apartment ID if needed
+  final String userId;
+  final String apartmentId;
   final String unitId;
 
   const UnitDetailsPage({
@@ -25,9 +25,6 @@ class UnitDetailsPage extends StatelessWidget {
         .collection('units');
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Unit Details'),
-      // ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: unitRef.doc(unitId).snapshots(),
         builder: (BuildContext context,
@@ -55,7 +52,6 @@ class UnitDetailsPage extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                // Tenant Details Section
                 Row(
                   children: [
                     Expanded(
@@ -180,7 +176,7 @@ class UnitDetailsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Email Section
+
                 Row(
                   children: [
                     Expanded(
@@ -231,7 +227,7 @@ class UnitDetailsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Rent Section
+
                 Row(
                   children: [
                     Expanded(
@@ -382,10 +378,9 @@ class UnitDetailsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-                // Edit button
+
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  // Adjust the alignment as needed
                   children: [
                     SizedBox(
                       width: 200,
