@@ -3,15 +3,14 @@ import '../DetailsTab.dart';
 import '../BalanceTab.dart';
 import '../InvoicesTab.dart';
 import '../PaymentsTab.dart';
-
-import '../../../widgets/navbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
 class RemindersDetails extends StatelessWidget {
-
   final Map<String, dynamic> propertyInfo;
 
   const RemindersDetails({Key? key, required this.propertyInfo}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +38,10 @@ class RemindersDetails extends StatelessWidget {
               child: TabBarView(
                 children: [
                   DetailsTab(property: propertyInfo),
-                  BalanceTab(),
+                  BalanceTab(
+                    propertyInfo: propertyInfo,
+                    onMarkPaid: () => _markRentAsPaid(context),
+                  ),
                   InvoicesTab(),
                   PaymentsTab(),
                 ],
@@ -48,10 +50,32 @@ class RemindersDetails extends StatelessWidget {
           ],
         ),
       ),
-      // bottomNavigationBar: NavBar(
-      //   selectedIndex: 0,
-      //   onDestinationSelected: (int value) {},
-      // ),
     );
+  }
+
+  Future<void> _markRentAsPaid(BuildContext context) async {
+    final userID = FirebaseAuth.instance.currentUser!.uid;
+    final propertyId = propertyInfo['propertyId'];
+    final tenantRent = propertyInfo['tenantRent'];
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userID)
+          .collection('properties')
+          .doc(propertyId)
+          .collection('monthlyDetails')
+          .doc(_getCurrentMonth())
+          .update({'paid': true, 'rent': tenantRent});
+
+    } catch (e) {
+      print('Error updating rent status: $e');
+    }
+  }
+
+  String _getCurrentMonth() {
+    DateTime now = DateTime.now();
+    String currentMonth = DateFormat('MMMM').format(now);
+    return currentMonth;
   }
 }

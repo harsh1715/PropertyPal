@@ -5,14 +5,13 @@ import '../BalanceTab.dart';
 import '../InvoicesTab.dart';
 import '../PaymentsTab.dart';
 
-import '../../../widgets/navbar.dart';
 
 class UnitDetails extends StatelessWidget {
 
   //final Map<String, dynamic> propertyInfo;
 
-  final String userId; // Add the user ID if needed
-  final String apartmentId; // Add the apartment ID if needed
+  final String userId;
+  final String apartmentId;
   final String unitId;
 
   const UnitDetails(
@@ -52,7 +51,7 @@ class UnitDetails extends StatelessWidget {
               child: TabBarView(
                 children: [
                   UnitDetailsPage(userId: userId, apartmentId: apartmentId, unitId: unitId),
-                  BalanceTab(),
+                  // BalanceTab(),
                   InvoicesTab(),
                   PaymentsTab(),
                 ],
@@ -61,10 +60,6 @@ class UnitDetails extends StatelessWidget {
           ],
         ),
       ),
-      // bottomNavigationBar: NavBar(
-      //   selectedIndex: 0,
-      //   onDestinationSelected: (int value) {},
-      // ),
     );
   }
 }
