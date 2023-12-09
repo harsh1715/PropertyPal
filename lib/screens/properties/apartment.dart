@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:propertypal/screens/properties/unitdetails.dart';
-import '../reminder/details/property_details.dart';
 import '../reminder/details/unit_details.dart';
 import 'apartmentDetailsOutline.dart';
 import '../welcome_screen.dart';
@@ -189,6 +187,7 @@ class Apartments extends StatelessWidget {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => UnitDetails(
+                                        unitInfo: unit,
                                         userId: userId!,
                                         apartmentId: apartmentId,
                                         unitId: unit['unitId'],
