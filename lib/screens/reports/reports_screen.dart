@@ -4,16 +4,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ReportScreen extends StatefulWidget {
   const ReportScreen({Key? key}) : super(key: key);
+
   @override
   _ReportScreenState createState() => _ReportScreenState();
 }
 
 class _ReportScreenState extends State<ReportScreen> {
   String? selectedPropertyId;
-  String? totalIncomeDisplay = '0';
+  String? selectedApartmentId;
+  String? totalPropertyIncomeDisplay = '0';
+  String? totalApartmentIncomeDisplay = '0';
   List<String> propertyNames = [];
-  List<String> propertyids = [];
+  List<String> propertyIds = [];
+  List<String> apartmentNames = [];
+  List<String> apartmentIds = [];
 
+  @override
+  void initState() {
+    super.initState();
+    retrieveUserProperties();
+  }
 
   void retrieveUserProperties() {
     try {
@@ -22,17 +32,20 @@ class _ReportScreenState extends State<ReportScreen> {
       if (user != null) {
         String userId = user.uid;
 
-        DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(userId);
+        DocumentReference userRef = FirebaseFirestore.instance.collection(
+            "users").doc(userId);
 
         userRef.get().then((DocumentSnapshot userSnapshot) {
           if (userSnapshot.exists) {
-            CollectionReference propertiesCollection = userSnapshot.reference.collection('properties');
+            CollectionReference propertiesCollection = userSnapshot.reference
+                .collection('properties');
 
             propertiesCollection.get().then((QuerySnapshot propertiesSnapshot) {
               List<String> id = [];
               List<String> names = [];
 
-              propertiesSnapshot.docs.forEach((QueryDocumentSnapshot propertySnapshot) {
+              propertiesSnapshot.docs.forEach((
+                  QueryDocumentSnapshot propertySnapshot) {
                 String propertyid = propertySnapshot.id;
 
                 var propertyName = propertySnapshot.get('propertyName');
@@ -42,8 +55,9 @@ class _ReportScreenState extends State<ReportScreen> {
               });
 
               setState(() {
-                propertyids = id;
-                propertyNames = names; // Update propertyNames with fetched names
+                propertyIds = id;
+                propertyNames =
+                    names; // Update propertyNames with fetched names
               });
 
               openPropertyDropdown();
@@ -60,16 +74,16 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
-
   void openPropertyDropdown() {
     if (propertyNames.isNotEmpty) {
-      FocusScope.of(context).requestFocus(FocusNode()); // Close keyboard if open
+      FocusScope.of(context).requestFocus(
+          FocusNode()); // Close keyboard if open
       showMenu<String>(
         context: context,
         position: RelativeRect.fromLTRB(0, 0, 0, 0),
-        items: propertyids.map((propertyid) {
+        items: propertyIds.map((propertyid) {
           // Find the index of the property ID in the propertyids list
-          int index = propertyids.indexOf(propertyid);
+          int index = propertyIds.indexOf(propertyid);
           // Use the corresponding property name
           String propertyName = propertyNames[index];
           return PopupMenuItem<String>(
@@ -87,6 +101,7 @@ class _ReportScreenState extends State<ReportScreen> {
       retrieveUserProperties(); // Fetch properties if the list is empty
     }
   }
+
   void fetchIncomeForProperty() {
     if (selectedPropertyId != null) {
       try {
@@ -103,13 +118,15 @@ class _ReportScreenState extends State<ReportScreen> {
 
           propertyRef.get().then((DocumentSnapshot propertySnapshot) {
             if (propertySnapshot.exists) {
-              var propertyData = propertySnapshot.data() as Map<String, dynamic>;
+              var propertyData = propertySnapshot.data() as Map<String,
+                  dynamic>;
               var tenantRent = propertyData['tenantRent'];
 
               print('Tenant Rent: $tenantRent');
 
               setState(() {
-                totalIncomeDisplay = tenantRent.toString();
+                totalPropertyIncomeDisplay = tenantRent
+                    .toString(); // Use totalPropertyIncomeDisplay for property income
               });
             } else {
               print("Property document does not exist");
@@ -124,61 +141,263 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
+  void _retrieveUserApartments() {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        String userId = user.uid;
+
+        DocumentReference userRef = FirebaseFirestore.instance.collection(
+            "users").doc(userId);
+
+        userRef.get().then((DocumentSnapshot userSnapshot) {
+          if (userSnapshot.exists) {
+            CollectionReference apartmentsCollection = userSnapshot.reference
+                .collection('apartments');
+
+            apartmentsCollection.get().then((QuerySnapshot apartmentsSnapshot) {
+              List<String> id = [];
+              List<String> names = [];
+
+              apartmentsSnapshot.docs.forEach((
+                  QueryDocumentSnapshot apartmentSnapshot) {
+                String apartmentId = apartmentSnapshot.id;
+
+                var apartmentName = apartmentSnapshot.get('propertyName');
+
+                id.add(apartmentId);
+                names.add(apartmentName);
+              });
+
+              setState(() {
+                apartmentIds = id;
+                apartmentNames =
+                    names; // Update apartmentNames with fetched names
+              });
+
+              _openApartmentDropdown();
+            });
+          } else {
+            print("User document does not exist");
+          }
+        });
+      } else {
+        print("No user signed in");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void _openApartmentDropdown() {
+    if (apartmentNames.isNotEmpty) {
+      FocusScope.of(context).requestFocus(
+          FocusNode()); // Close keyboard if open
+      showMenu<String>(
+        context: context,
+        position: RelativeRect.fromLTRB(0, 0, 0, 0),
+        items: apartmentIds.map((apartmentId) {
+          // Find the index of the apartment ID in the apartmentIds list
+          int index = apartmentIds.indexOf(apartmentId);
+          // Use the corresponding apartment name
+          String apartmentName = apartmentNames[index];
+          return PopupMenuItem<String>(
+            value: apartmentId,
+            child: Text(
+                '$apartmentId - $apartmentName'), // Display apartment name
+          );
+        }).toList(),
+      ).then((value) {
+        setState(() {
+          selectedApartmentId = value;
+          _fetchIncomeForApartment();
+        });
+      });
+    } else {
+      _retrieveUserApartments(); // Fetch apartments if the list is empty
+    }
+  }
+
+  void _fetchIncomeForApartment() {
+    if (selectedApartmentId != null) {
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          String userId = user.uid;
+
+          CollectionReference unitsCollection = FirebaseFirestore.instance
+              .collection("users")
+              .doc(userId)
+              .collection('apartments')
+              .doc(selectedApartmentId!)
+              .collection('units');
+
+          List<int> incomes = []; // List to store total incomes
+          unitsCollection.get().then((QuerySnapshot unitsSnapshot) {
+            unitsSnapshot.docs.forEach((QueryDocumentSnapshot unitSnapshot) {
+              var unitData = unitSnapshot.data();
+              if (unitData != null && unitData is Map<String, dynamic>) {
+                // Check if 'tenantRent' exists and is a number
+                if (unitData.containsKey('tenantRent')) {
+                  String? rentString = unitData['tenantRent'];
+                  int? rent = int.tryParse(rentString ?? '');
+                  if (rent != null) {
+                    setState(() {
+                      incomes.add(rent); // Add the parsed income to the list
+                    });
+                  }
+                }
+              }
+            });
+            // Calculate total income from the list of incomes
+            int totalIncome = incomes.fold<int>(
+                0, (prev, element) => prev + element);
+            setState(() {
+              totalApartmentIncomeDisplay =
+                  totalIncome.toString(); // Update the display
+            });
+          });
+        } else {
+          print("No user signed in");
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+
+  Widget _buildPropertyTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: openPropertyDropdown,
+            child: InputDecorator(
+              decoration: InputDecoration( // Add decoration here
+                labelText: 'Select Property',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(selectedPropertyId ?? 'Select Property'),
+                  Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blue.shade200,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Total Income for Property",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text("\$$totalPropertyIncomeDisplay"),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildApartmentTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: _openApartmentDropdown,
+            child: InputDecorator(
+              decoration: InputDecoration(
+                labelText: 'Select Apartment',
+                border: OutlineInputBorder(),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(selectedApartmentId ?? 'Select Apartment'),
+                  Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.blue.shade200,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Total Income for Apartment",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text("\$$totalApartmentIncomeDisplay"),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Report"),
+        title: Text("Reports", style: TextStyle(color: Colors.white)),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: DefaultTabController(
+        length: 2,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            InkWell(
-              onTap: openPropertyDropdown,
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  labelText: 'Select Property',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(selectedPropertyId ?? 'Select Property'),
-                    Icon(Icons.arrow_drop_down),
-                  ],
-                ),
+            TabBar(
+              labelColor: Colors.black,
+              indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(width: 2.0, color: Colors.black),
               ),
-            ),
-            const SizedBox(height: 20),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.blue.shade200,
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Total Income",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              tabs: [
+                Tab(
+                  child: Text(
+                    "Properties",
+                    style: TextStyle(color: Colors.black),
                   ),
-                  Text("\$$totalIncomeDisplay"),
-                ],
-              ),
+                ),
+                Tab(
+                  child: Text(
+                    "Apartments",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: const Row(
+            Expanded(
+              child: TabBarView(
                 children: [
-                  Text("Revenue"),
-                  SizedBox(width: 8),
-                  Text("Total Rent Collected"),
+                  _buildPropertyTab(), // Content for the first tab
+                  _buildApartmentTab(), // Content for the second tab
                 ],
               ),
             ),
