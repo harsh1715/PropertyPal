@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../reminder/details/unit_details.dart';
-import 'apartmentDetailsOutline.dart';
+import '../tabBar_contents/tabBar_display/unit_tabBar.dart';
 import '../welcome_screen.dart';
+import 'apartment_details.dart';
 
 class ApartmentWidget extends StatelessWidget {
   ApartmentWidget({
@@ -186,7 +186,7 @@ class Apartments extends StatelessWidget {
                                   print("Unit tapped: ${unit['unitId']}");
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (context) => UnitDetails(
+                                      builder: (context) => UnitTabBar(
                                         unitInfo: unit,
                                         userId: userId!,
                                         apartmentId: apartmentId,

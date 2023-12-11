@@ -1,20 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:propertypal/screens/properties/unitdetails.dart';
-import '../BalanceTabApartment.dart';
-import '../InvoicesTab.dart';
-import '../PaymentsTab.dart';
+import '../balanceTab/unit_balanceTab.dart';
+import '../paymentTab/unit_paymentTab.dart';
+import '../detailsTab/unitdetails.dart';
 
 
-class UnitDetails extends StatelessWidget {
+class UnitTabBar extends StatelessWidget {
 
   final Map<dynamic, dynamic> unitInfo;
   final String userId;
   final String apartmentId;
   final unitId;
 
-  const UnitDetails(
+  const UnitTabBar(
       {
         Key? key,
         required this.userId,
@@ -31,7 +30,7 @@ class UnitDetails extends StatelessWidget {
       appBar: AppBar(
         title: Text(unitInfo['unitName'] ?? 'Property Name Not Available'),),
       body: DefaultTabController(
-        length: 4,
+        length: 3,
         child: Column(
           children: [
             TabBar(
@@ -42,7 +41,6 @@ class UnitDetails extends StatelessWidget {
               tabs: [
                 Tab(text: 'Details'),
                 Tab(text: 'Balance'),
-                Tab(text: 'Invoices'),
                 Tab(text: 'Payments'),
               ],
             ),
@@ -50,9 +48,9 @@ class UnitDetails extends StatelessWidget {
               child: TabBarView(
                 children: [
                   UnitDetailsPage(userId: userId, apartmentId: apartmentId, unitId: unitId),
-                  BalanceTabApartment(apartmentId: apartmentId, unitInfo: unitInfo, onMarkPaid: () => _markRentAsPaid(context),),
-                  InvoicesTab(),
-                  PaymentsTab(),
+                  BalanceTabApartment(apartmentId: apartmentId, unitInfo: unitInfo, onMarkPaid: () => _markRentAsPaid(context)),
+                  UnitPaymentsTab(apartmentId: apartmentId, unitInfo: unitInfo),
+                  // HousePaymentsTab(propertyInfo: unitInfo: unitInfo),
                 ],
               ),
             ),

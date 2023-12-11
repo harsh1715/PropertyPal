@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:propertypal/screens/welcome_screen.dart';
 import 'package:flutter/material.dart';
+import '../tabBar_contents/tabBar_display/house_tabBar.dart';
 
-import '../reminder/details/property_details.dart';
 
 
 class HouseWidget extends StatelessWidget {
@@ -83,7 +83,7 @@ class Houses extends StatelessWidget {
               onTap: (){
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => RemindersDetails(propertyInfo: property),
+                    builder: (context) => HomeTabBar(propertyInfo: property),
                   ),
                 );
                 print("Container tapped: ${property['propertyName']}");

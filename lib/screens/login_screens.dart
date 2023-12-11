@@ -110,7 +110,7 @@ class _LoginState extends State<Login> {
                       MaterialPageRoute(builder: (context) => SignUp()),
                     );
                   },
-                  child: Text("Create new account")
+                  child: Text("Create New Account")
               ),
             ],
           ),

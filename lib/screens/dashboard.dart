@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:propertypal/screens/home_screen.dart';
-import 'package:propertypal/screens/reminder/reminder_screen.dart';
 import 'package:propertypal/screens/settings/settings_screen.dart';
+import 'package:propertypal/screens/reminder_screen.dart';
 import 'package:propertypal/widgets/navbar.dart';
 import 'package:propertypal/screens/reports/reports_screen.dart';
 

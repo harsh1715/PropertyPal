@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import '../DetailsTab.dart';
-import '../BalanceTab.dart';
-import '../InvoicesTab.dart';
-import '../PaymentsTab.dart';
+import '../detailsTab/house_detailsTab.dart';
+import '../balanceTab/house_balanceTab.dart';
+import '../paymentTab/house_paymentsTab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-class RemindersDetails extends StatelessWidget {
+class HomeTabBar extends StatelessWidget {
   final Map<String, dynamic> propertyInfo;
 
-  const RemindersDetails({Key? key, required this.propertyInfo}) : super(key: key);
+  const HomeTabBar({Key? key, required this.propertyInfo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +18,7 @@ class RemindersDetails extends StatelessWidget {
         title: Text(propertyInfo['tenantName']),
       ),
       body: DefaultTabController(
-        length: 4,
+        length: 3,
         child: Column(
           children: [
             TabBar(
@@ -30,7 +29,6 @@ class RemindersDetails extends StatelessWidget {
               tabs: [
                 Tab(text: 'Details'),
                 Tab(text: 'Balance'),
-                Tab(text: 'Invoices'),
                 Tab(text: 'Payments'),
               ],
             ),
@@ -42,8 +40,7 @@ class RemindersDetails extends StatelessWidget {
                     propertyInfo: propertyInfo,
                     onMarkPaid: () => _markRentAsPaid(context),
                   ),
-                  InvoicesTab(),
-                  PaymentsTab(),
+                  HousePaymentsTab(propertyInfo: propertyInfo),
                 ],
               ),
             ),

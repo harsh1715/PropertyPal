@@ -3,30 +3,28 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class BalanceTabApartment extends StatefulWidget {
-  final Map<dynamic, dynamic> unitInfo;
-  final String apartmentId;
+class BalanceTab extends StatefulWidget {
+  final Map<String, dynamic> propertyInfo;
   final VoidCallback onMarkPaid;
 
-  const BalanceTabApartment({
+  const BalanceTab({
     Key? key,
-    required this.unitInfo,
+    required this.propertyInfo,
     required this.onMarkPaid,
-    required this.apartmentId,
   }) : super(key: key);
 
   @override
   _BalanceTabState createState() => _BalanceTabState();
 }
 
-class _BalanceTabState extends State<BalanceTabApartment> {
+class _BalanceTabState extends State<BalanceTab> {
   bool rentPaid = false;
   double rentAmountValue = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _getBalanceText(widget.apartmentId ,widget.unitInfo['unitId'], _getCurrentMonth());
+    _getBalanceText(widget.propertyInfo['propertyId'], _getCurrentMonth());
   }
 
   @override
@@ -74,7 +72,7 @@ class _BalanceTabState extends State<BalanceTabApartment> {
                     child: Padding(
                       padding: EdgeInsets.only(right: 16),
                       child: Text(
-                        "Tenant Monthly Rent: \$${widget.unitInfo['tenantRent']}",
+                        "Tenant Monthly Rent: \$${widget.propertyInfo['tenantRent']}",
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -86,6 +84,7 @@ class _BalanceTabState extends State<BalanceTabApartment> {
               ),
             ],
           ),
+
           Row(
             children: [
               Expanded(
@@ -175,7 +174,7 @@ class _BalanceTabState extends State<BalanceTabApartment> {
                     child: Padding(
                       padding: EdgeInsets.only(right: 16),
                       child: Text(
-                        '\$${rentAmountValue.toStringAsFixed(2)}',
+                        '\$${rentAmountValue}',
                         style: TextStyle(
                           color: Colors.black,
                         ),
@@ -190,9 +189,9 @@ class _BalanceTabState extends State<BalanceTabApartment> {
           ElevatedButton(
             onPressed: () {
               widget.onMarkPaid();
-              _getBalanceText(widget.apartmentId, widget.unitInfo['unitId'], _getCurrentMonth());
+              _getBalanceText(widget.propertyInfo['propertyId'], _getCurrentMonth());
             },
-            child: Text('Mark Rent as Paid'),
+            child: Text('Mark Rent Paid In Full'),
           ),
         ],
       ),
@@ -205,19 +204,20 @@ class _BalanceTabState extends State<BalanceTabApartment> {
     return currentMonth;
   }
 
-  Future<void> _getBalanceText(String apartmentId, String unitId, String documentField) async {
+
+  Future<void> _getBalanceText(String propertyId, String documentField) async {
     final userID = FirebaseAuth.instance.currentUser!.uid;
+
     try {
       final snapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userID)
-          .collection('apartments')
-          .doc(apartmentId)
-          .collection('units')
-          .doc(unitId)
+          .collection('properties')
+          .doc(propertyId)
           .collection('monthlyDetails')
           .doc(_getCurrentMonth())
           .get();
+
       if (snapshot.exists) {
         final bool isRentPaid = snapshot.data()?['paid'] ?? false;
         final double rentAmount = double.parse(snapshot.data()?['rent'] ?? '0.0');
@@ -226,8 +226,7 @@ class _BalanceTabState extends State<BalanceTabApartment> {
           rentPaid = isRentPaid;
           rentAmountValue = rentAmount;
         });
-      }
-      else {
+      } else {
         print('Document does not exist');
       }
     } catch (error) {

@@ -5,6 +5,25 @@ import 'package:propertypal/widgets/auth_gate.dart';
 import '../../widgets/add_apartment_form.dart';
 import '../../widgets/add_unit_form.dart';
 
+
+class ApartmentDetails extends StatelessWidget {
+
+  final Map<String, dynamic> propertyInfo;
+
+  const ApartmentDetails({Key? key, required this.propertyInfo}) : super(key: key);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(propertyInfo['propertyName']),
+        ),
+        body: ApartmentDetailsTab(property: propertyInfo)
+    );
+  }
+}
+
 class ApartmentDetailsTab extends StatefulWidget {
   final Map<String, dynamic> property;
 
