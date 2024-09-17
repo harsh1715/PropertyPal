@@ -5,30 +5,26 @@ import '../balanceTab/unit_balanceTab.dart';
 import '../paymentTab/unit_paymentTab.dart';
 import '../detailsTab/unitdetails.dart';
 
-
 class UnitTabBar extends StatelessWidget {
-
   final Map<dynamic, dynamic> unitInfo;
   final String userId;
   final String apartmentId;
   final unitId;
 
-  const UnitTabBar(
-      {
-        Key? key,
-        required this.userId,
-        required this.apartmentId,
-        required this.unitId,
-        required this.unitInfo,
-      }
-  ) : super(key: key);
-
+  const UnitTabBar({
+    Key? key,
+    required this.userId,
+    required this.apartmentId,
+    required this.unitId,
+    required this.unitInfo,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context)  {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(unitInfo['unitName'] ?? 'Property Name Not Available'),),
+        title: Text(unitInfo['unitName'] ?? 'Property Name Not Available'),
+      ),
       body: DefaultTabController(
         length: 3,
         child: Column(
@@ -47,10 +43,13 @@ class UnitTabBar extends StatelessWidget {
             Expanded(
               child: TabBarView(
                 children: [
-                  UnitDetailsPage(userId: userId, apartmentId: apartmentId, unitId: unitId),
-                  BalanceTabApartment(apartmentId: apartmentId, unitInfo: unitInfo, onMarkPaid: () => _markRentAsPaid(context)),
+                  UnitDetailsPage(
+                      userId: userId, apartmentId: apartmentId, unitId: unitId),
+                  BalanceTabApartment(
+                      apartmentId: apartmentId,
+                      unitInfo: unitInfo,
+                      onMarkPaid: () => _markRentAsPaid(context)),
                   UnitPaymentsTab(apartmentId: apartmentId, unitInfo: unitInfo),
-                  // HousePaymentsTab(propertyInfo: unitInfo: unitInfo),
                 ],
               ),
             ),
@@ -59,23 +58,10 @@ class UnitTabBar extends StatelessWidget {
       ),
     );
   }
+
   Future<void> _markRentAsPaid(BuildContext context) async {
     try {
-      final unitRef = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('apartments')
-          .doc(apartmentId)
-          .collection('units')
-          .doc(unitId);
-
-      final unitDoc = await unitRef.get();
-      final currentTenantRent = unitDoc.get('tenantRent');
-      await unitRef
-          .collection('monthlyDetails')
-          .doc(_getCurrentMonth())
-          .update({'paid': true, 'rent': currentTenantRent});
-    } catch (e) {
+      // Reference to the unit
       final unitRef = FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -83,20 +69,38 @@ class UnitTabBar extends StatelessWidget {
           .doc(apartmentId)
           .collection('units')
           .doc(unitId);
+
+      // Retrieve the tenant's current rent
       final unitDoc = await unitRef.get();
       final currentTenantRent = unitDoc.get('tenantRent');
+
+      // Update the rent payment status in the monthly details collection
+      await unitRef
+          .collection('monthlyDetails')
+          .doc(_getCurrentMonth())
+          .update({
+        'paid': true,
+        'rent': currentTenantRent,
+      });
+
+      // Display success feedback to the user
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Rent marked as paid successfully!')),
+      );
+    } catch (e) {
+      // Handle errors and display feedback
       print('Error marking rent as paid: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error marking rent as paid. Please try again.' ),
+          content: Text('Error marking rent as paid. Please try again.'),
         ),
       );
     }
   }
+
   String _getCurrentMonth() {
     DateTime now = DateTime.now();
     String currentMonth = DateFormat('MMMM').format(now);
     return currentMonth;
   }
-
 }
