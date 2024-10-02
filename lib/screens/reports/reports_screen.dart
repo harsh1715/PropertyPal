@@ -92,7 +92,17 @@ class _ReportScreenState extends State<ReportScreen> {
 
   // Generate the PDF report
   Future<void> _createPdfReport() async {
+    // Fetch the tenant data based on the selected unit and apartment
     List<Map<String, dynamic>> tenantData = await _fetchTenantData();
+
+    // Ensure that the tenant data is fetched fresh each time based on the selected apartment and unit
+    if (selectedApartmentId != null && selectedUnitId != null) {
+      tenantData = await _fetchTenantDataForSelectedUnit(selectedApartmentId!, selectedUnitId!);
+    } else {
+      print("No unit or apartment selected");
+      return; // Exit if no valid selection is made
+    }
+
     String currentDate = DateFormat('MM/dd/yyyy').format(DateTime.now());
 
     final pdf = pw.Document();
@@ -110,9 +120,9 @@ class _ReportScreenState extends State<ReportScreen> {
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.start,
                     children: [
-                      pw.Text("<Company Name>", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                      pw.Text("Greystar Real Estate Partners", style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
                       pw.Text("Property Address: ${tenantData[0]['apartmentAddress']}"),
-                      pw.Text("<Website, Email Address>"),
+                      pw.Text("2900892 Ontario Inc."),
                     ],
                   ),
                 ],
@@ -149,7 +159,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           crossAxisAlignment: pw.CrossAxisAlignment.start,
                           children: [
                             pw.Text("Tenant Name: ${tenantData[0]['tenantName']}"),
-                            pw.Text("Property Address: ${tenantData[0]['apartmentAddress']}"),
+                            pw.Text("Unit Name: ${tenantData[0]['unitName']}"),
                             pw.Text("Tenant Email: ${tenantData[0]['tenantEmail']}"),
                             pw.Text("Tenant Phone: ${tenantData[0]['tenantPhone']}"),
                           ],
@@ -175,7 +185,7 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
               pw.SizedBox(height: 10),
 
-              // Table Content (Empty for now)
+              // Table Content
               pw.Container(
                 padding: const pw.EdgeInsets.all(10),
                 child: pw.Row(
@@ -204,7 +214,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
               pw.SizedBox(height: 20),
 
-              // Footer (Removed terms and instructions)
+              // Footer
               pw.Text("Thank You!", style: pw.TextStyle(fontSize: 12)),
             ],
           );
@@ -216,6 +226,36 @@ class _ReportScreenState extends State<ReportScreen> {
     await Printing.layoutPdf(onLayout: (PdfPageFormat format) async => pdf.save());
   }
 
+  Future<List<Map<String, dynamic>>> _fetchTenantDataForSelectedUnit(String apartmentId, String unitId) async {
+    // This function should fetch data specifically for the selected apartment and unit
+    // Implement your Firebase query to fetch the correct data here
+
+    List<Map<String, dynamic>> tenantData = [];
+
+    // Fetch the apartment data from Firebase
+    DocumentSnapshot apartmentSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('apartments')
+        .doc(apartmentId)
+        .collection('units')
+        .doc(unitId)
+        .get();
+
+    if (apartmentSnapshot.exists) {
+      Map<String, dynamic> data = apartmentSnapshot.data() as Map<String, dynamic>;
+      tenantData.add({
+        'tenantName': data['tenantName'],
+        'tenantEmail': data['tenantEmail'],
+        'tenantPhone': data['tenantPhone'],
+        'tenantRent': data['tenantRent'],
+        'apartmentAddress': data['propertyAddress'],
+        'unitName': data['unitName'],
+      });
+    }
+
+    return tenantData;
+  }
 
   // Button to generate the PDF
   Widget _generatePdfButton() {
