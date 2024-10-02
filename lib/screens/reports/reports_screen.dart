@@ -10,62 +10,62 @@ class ReportScreen extends StatefulWidget {
 }
 
 class _ReportScreenState extends State<ReportScreen> {
+  final GlobalKey _apartmentFieldKey = GlobalKey();
+  final GlobalKey _propertyFieldKey = GlobalKey();
+
   String? selectedPropertyId;
   String? selectedApartmentId;
+  String? selectedUnitId;
   String? totalPropertyIncomeDisplay = '0';
-  String? totalApartmentIncomeDisplay = '0';
+  String? totalUnitIncomeDisplay = '0';
   List<String> propertyNames = [];
   List<String> propertyIds = [];
   List<String> apartmentNames = [];
   List<String> apartmentIds = [];
+  List<String> unitNames = [];
+  List<String> unitIds = [];
 
   @override
   void initState() {
     super.initState();
     retrieveUserProperties();
+    _retrieveUserApartments(); // Ensure apartments are initialized on startup
   }
 
-  void retrieveUserProperties() {
+  // Step 1: Retrieve the list of properties
+  void retrieveUserProperties() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
         String userId = user.uid;
 
-        DocumentReference userRef = FirebaseFirestore.instance.collection(
-            "users").doc(userId);
+        DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(userId);
 
-        userRef.get().then((DocumentSnapshot userSnapshot) {
-          if (userSnapshot.exists) {
-            CollectionReference propertiesCollection = userSnapshot.reference
-                .collection('properties');
+        DocumentSnapshot userSnapshot = await userRef.get();
+        if (userSnapshot.exists) {
+          CollectionReference propertiesCollection = userSnapshot.reference.collection('properties');
 
-            propertiesCollection.get().then((QuerySnapshot propertiesSnapshot) {
-              List<String> id = [];
-              List<String> names = [];
+          QuerySnapshot propertiesSnapshot = await propertiesCollection.get();
+          List<String> id = [];
+          List<String> names = [];
 
-              propertiesSnapshot.docs.forEach((
-                  QueryDocumentSnapshot propertySnapshot) {
-                String propertyid = propertySnapshot.id;
+          propertiesSnapshot.docs.forEach((QueryDocumentSnapshot propertySnapshot) {
+            String propertyId = propertySnapshot.id;
+            var propertyName = propertySnapshot.get('propertyName');
+            id.add(propertyId);
+            names.add(propertyName);
+          });
 
-                var propertyName = propertySnapshot.get('propertyName');
+          setState(() {
+            propertyIds = id;
+            propertyNames = names;
+          });
 
-                id.add(propertyid);
-                names.add(propertyName);
-              });
-
-              setState(() {
-                propertyIds = id;
-                propertyNames =
-                    names;
-              });
-
-              openPropertyDropdown();
-            });
-          } else {
-            print("User document does not exist");
-          }
-        });
+          print("Properties fetched: ${propertyNames.length}");
+        } else {
+          print("User document does not exist");
+        }
       } else {
         print("No user signed in");
       }
@@ -74,19 +74,150 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
+  // Step 2: Retrieve apartments and check if they are properly fetched
+  void _retrieveUserApartments() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        String userId = user.uid;
+
+        DocumentReference userRef = FirebaseFirestore.instance.collection("users").doc(userId);
+
+        DocumentSnapshot userSnapshot = await userRef.get();
+        if (userSnapshot.exists) {
+          CollectionReference apartmentsCollection = userSnapshot.reference.collection('apartments');
+
+          QuerySnapshot apartmentsSnapshot = await apartmentsCollection.get();
+          List<String> id = [];
+          List<String> names = [];
+
+          apartmentsSnapshot.docs.forEach((QueryDocumentSnapshot apartmentSnapshot) {
+            String apartmentId = apartmentSnapshot.id;
+            var apartmentName = apartmentSnapshot.get('propertyName');
+            id.add(apartmentId);
+            names.add(apartmentName);
+          });
+
+          setState(() {
+            apartmentIds = id;
+            apartmentNames = names;
+          });
+
+          print("Apartments fetched: ${apartmentNames.length}");
+        } else {
+          print("User document does not exist");
+        }
+      } else {
+        print("No user signed in");
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  // Step 3: Retrieve the list of units based on the selected apartment
+  void _retrieveUnitsForApartment() async {
+    if (selectedApartmentId != null) {
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          String userId = user.uid;
+
+          DocumentReference apartmentRef = FirebaseFirestore.instance
+              .collection("users")
+              .doc(userId)
+              .collection('apartments')
+              .doc(selectedApartmentId!);
+
+          CollectionReference unitsCollection = apartmentRef.collection('units');
+          QuerySnapshot unitsSnapshot = await unitsCollection.get();
+          List<String> unitIdList = [];
+          List<String> unitNameList = [];
+
+          unitsSnapshot.docs.forEach((QueryDocumentSnapshot unitSnapshot) {
+            String unitId = unitSnapshot.id;
+            var unitName = unitSnapshot.get('unitName');
+            unitIdList.add(unitId);
+            unitNameList.add(unitName);
+          });
+
+          setState(() {
+            unitIds = unitIdList;
+            unitNames = unitNameList;
+          });
+
+          print("Units fetched for apartment ${selectedApartmentId}: ${unitNames.length}");
+        } else {
+          print("No user signed in");
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+
+  // Step 4: Fetch the income for the selected unit
+  void _fetchIncomeForUnit() async {
+    if (selectedUnitId != null) {
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          String userId = user.uid;
+
+          DocumentReference unitRef = FirebaseFirestore.instance
+              .collection("users")
+              .doc(userId)
+              .collection('apartments')
+              .doc(selectedApartmentId!)
+              .collection('units')
+              .doc(selectedUnitId!);
+
+          DocumentSnapshot unitSnapshot = await unitRef.get();
+          if (unitSnapshot.exists) {
+            var unitData = unitSnapshot.data() as Map<String, dynamic>;
+            var tenantRent = unitData['tenantRent'];
+
+            setState(() {
+              totalUnitIncomeDisplay = tenantRent.toString();
+            });
+
+            print("Income fetched for unit $selectedUnitId: $totalUnitIncomeDisplay");
+          } else {
+            print("Unit document does not exist");
+          }
+        } else {
+          print("No user signed in");
+        }
+      } catch (e) {
+        print(e.toString());
+      }
+    }
+  }
+
+  // Step 5: Open the property dropdown
   void openPropertyDropdown() {
     if (propertyNames.isNotEmpty) {
-      FocusScope.of(context).requestFocus(
-          FocusNode());
+      // Get the RenderBox of the widget associated with the GlobalKey
+      final RenderBox renderBox = _propertyFieldKey.currentContext!.findRenderObject() as RenderBox;
+      final Offset offset = renderBox.localToGlobal(Offset.zero);
+
       showMenu<String>(
         context: context,
-        position: RelativeRect.fromLTRB(0, 0, 0, 0),
-        items: propertyIds.map((propertyid) {
-          int index = propertyIds.indexOf(propertyid);
+        position: RelativeRect.fromLTRB(
+          offset.dx,                                 // X position (left)
+          offset.dy + renderBox.size.height,         // Y position (top + height of the widget)
+          offset.dx + renderBox.size.width,          // Width (right)
+          0,                                         // Unused (bottom)
+        ),
+        items: propertyIds.map((propertyId) {
+          int index = propertyIds.indexOf(propertyId);
           String propertyName = propertyNames[index];
           return PopupMenuItem<String>(
-            value: propertyid,
-            child: Text('$propertyid - $propertyName'),
+            value: propertyId,
+            child: Text('$propertyId - $propertyName'),
           );
         }).toList(),
       ).then((value) {
@@ -100,7 +231,8 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
-  void fetchIncomeForProperty() {
+  // Step 6: Fetch income for the selected property
+  void fetchIncomeForProperty() async {
     if (selectedPropertyId != null) {
       try {
         User? user = FirebaseAuth.instance.currentUser;
@@ -114,146 +246,19 @@ class _ReportScreenState extends State<ReportScreen> {
               .collection('properties')
               .doc(selectedPropertyId!);
 
-          propertyRef.get().then((DocumentSnapshot propertySnapshot) {
-            if (propertySnapshot.exists) {
-              var propertyData = propertySnapshot.data() as Map<String,
-                  dynamic>;
-              var tenantRent = propertyData['tenantRent'];
+          DocumentSnapshot propertySnapshot = await propertyRef.get();
+          if (propertySnapshot.exists) {
+            var propertyData = propertySnapshot.data() as Map<String, dynamic>;
+            var tenantRent = propertyData['tenantRent'];
 
-              print('Tenant Rent: $tenantRent');
-
-              setState(() {
-                totalPropertyIncomeDisplay = tenantRent
-                    .toString();
-              });
-            } else {
-              print("Property document does not exist");
-            }
-          });
-        } else {
-          print("No user signed in");
-        }
-      } catch (e) {
-        print(e.toString());
-      }
-    }
-  }
-
-  void _retrieveUserApartments() {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        String userId = user.uid;
-
-        DocumentReference userRef = FirebaseFirestore.instance.collection(
-            "users").doc(userId);
-
-        userRef.get().then((DocumentSnapshot userSnapshot) {
-          if (userSnapshot.exists) {
-            CollectionReference apartmentsCollection = userSnapshot.reference
-                .collection('apartments');
-
-            apartmentsCollection.get().then((QuerySnapshot apartmentsSnapshot) {
-              List<String> id = [];
-              List<String> names = [];
-
-              apartmentsSnapshot.docs.forEach((
-                  QueryDocumentSnapshot apartmentSnapshot) {
-                String apartmentId = apartmentSnapshot.id;
-
-                var apartmentName = apartmentSnapshot.get('propertyName');
-
-                id.add(apartmentId);
-                names.add(apartmentName);
-              });
-
-              setState(() {
-                apartmentIds = id;
-                apartmentNames =
-                    names;
-              });
-
-              _openApartmentDropdown();
-            });
-          } else {
-            print("User document does not exist");
-          }
-        });
-      } else {
-        print("No user signed in");
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
-  void _openApartmentDropdown() {
-    if (apartmentNames.isNotEmpty) {
-      FocusScope.of(context).requestFocus(
-          FocusNode());
-      showMenu<String>(
-        context: context,
-        position: RelativeRect.fromLTRB(0, 0, 0, 0),
-        items: apartmentIds.map((apartmentId) {
-          int index = apartmentIds.indexOf(apartmentId);
-          String apartmentName = apartmentNames[index];
-          return PopupMenuItem<String>(
-            value: apartmentId,
-            child: Text(
-                '$apartmentId - $apartmentName'),
-          );
-        }).toList(),
-      ).then((value) {
-        setState(() {
-          selectedApartmentId = value;
-          _fetchIncomeForApartment();
-        });
-      });
-    } else {
-      _retrieveUserApartments();
-    }
-  }
-
-  void _fetchIncomeForApartment() {
-    if (selectedApartmentId != null) {
-      try {
-        User? user = FirebaseAuth.instance.currentUser;
-
-        if (user != null) {
-          String userId = user.uid;
-
-          CollectionReference unitsCollection = FirebaseFirestore.instance
-              .collection("users")
-              .doc(userId)
-              .collection('apartments')
-              .doc(selectedApartmentId!)
-              .collection('units');
-
-          List<int> incomes = [];
-          unitsCollection.get().then((QuerySnapshot unitsSnapshot) {
-            unitsSnapshot.docs.forEach((QueryDocumentSnapshot unitSnapshot) {
-              var unitData = unitSnapshot.data();
-              if (unitData != null && unitData is Map<String, dynamic>) {
-                if (unitData.containsKey('tenantRent')) {
-                  String? rentString = unitData['tenantRent'];
-                  int? rent = int.tryParse(rentString ?? '');
-                  if (rent != null) {
-                    setState(() {
-                      incomes.add(rent);
-                    });
-                  }
-                }
-              }
-            });
-
-            int totalIncome = incomes.fold<int>(
-                0, (prev, element) => prev + element);
             setState(() {
-              totalApartmentIncomeDisplay =
-                  totalIncome.toString();
+              totalPropertyIncomeDisplay = tenantRent.toString();
             });
-          });
+
+            print("Income fetched for property $selectedPropertyId: $totalPropertyIncomeDisplay");
+          } else {
+            print("Property document does not exist");
+          }
         } else {
           print("No user signed in");
         }
@@ -263,6 +268,7 @@ class _ReportScreenState extends State<ReportScreen> {
     }
   }
 
+  // Property Tab Widget
   Widget _buildPropertyTab() {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -270,7 +276,8 @@ class _ReportScreenState extends State<ReportScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           InkWell(
-            onTap: openPropertyDropdown,
+            key: _propertyFieldKey,  // Use the key here for "Select Property"
+            onTap: openPropertyDropdown,  // Trigger the dropdown when tapped
             child: InputDecorator(
               decoration: InputDecoration(
                 labelText: 'Select Property',
@@ -310,30 +317,64 @@ class _ReportScreenState extends State<ReportScreen> {
     );
   }
 
+  // Apartment Tab Widget
   Widget _buildApartmentTab() {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
-            onTap: _openApartmentDropdown,
-            child: InputDecorator(
-              decoration: InputDecoration(
-                labelText: 'Select Apartment',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(selectedApartmentId ?? 'Select Apartment'),
-                  Icon(Icons.arrow_drop_down),
-                ],
-              ),
+          // First Dropdown for selecting the apartment complex
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: 'Select Apartment Complex',
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
             ),
+            value: selectedApartmentId,
+            items: apartmentIds.map((apartmentId) {
+              int index = apartmentIds.indexOf(apartmentId);
+              String apartmentName = apartmentNames[index];
+              return DropdownMenuItem<String>(
+                value: apartmentId,
+                child: Text(apartmentName),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedApartmentId = value;
+                _retrieveUnitsForApartment(); // Fetch units for the selected apartment
+              });
+            },
           ),
           const SizedBox(height: 20),
+
+          // Second Dropdown for selecting the individual unit
+          DropdownButtonFormField<String>(
+            decoration: InputDecoration(
+              labelText: 'Select Unit',
+              border: OutlineInputBorder(),
+              contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
+            ),
+            value: selectedUnitId,
+            items: unitIds.map((unitId) {
+              int index = unitIds.indexOf(unitId);
+              String unitName = unitNames[index];
+              return DropdownMenuItem<String>(
+                value: unitId,
+                child: Text(unitName),
+              );
+            }).toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedUnitId = value;
+                _fetchIncomeForUnit(); // Fetch income for the selected unit
+              });
+            },
+          ),
+          const SizedBox(height: 20),
+
+          // Display the income for the selected unit
           Container(
             decoration: BoxDecoration(
               color: Colors.blue.shade200,
@@ -344,14 +385,13 @@ class _ReportScreenState extends State<ReportScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  "Total Income for Apartment",
+                  "Total Income for Unit",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                Text("\$$totalApartmentIncomeDisplay"),
+                Text("\$$totalUnitIncomeDisplay"),
               ],
             ),
           ),
-          const SizedBox(height: 20),
         ],
       ),
     );
