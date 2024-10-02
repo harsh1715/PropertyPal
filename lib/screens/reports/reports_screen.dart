@@ -343,10 +343,15 @@ class _ReportScreenState extends State<ReportScreen> {
             onChanged: (value) {
               setState(() {
                 selectedApartmentId = value;
-                _retrieveUnitsForApartment(); // Fetch units for the selected apartment
+                selectedUnitId = null;  // Reset the selected unit when the apartment complex is changed
+                unitIds = [];  // Clear the list of units
+                unitNames = [];  // Clear the unit names
+                totalUnitIncomeDisplay = '0';  // Reset the income display for the unit
+                _retrieveUnitsForApartment();  // Fetch the new units for the selected apartment complex
               });
             },
           ),
+
           const SizedBox(height: 20),
 
           // Second Dropdown for selecting the individual unit
